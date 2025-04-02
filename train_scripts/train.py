@@ -111,6 +111,7 @@ def log_validation(accelerator, config, model, logger, step, device, vae=None, i
         latents = []
         current_image_logs = []
         for prompt in validation_prompts:
+            print("PROMPT: ", prompt)
             z = (
                 torch.randn(1, config.vae.vae_latent_dim, latent_size, latent_size, device=device)
                 if init_z is None
@@ -915,6 +916,7 @@ def main(cfg: SanaConfig) -> None:
         sort_dataset=config.data.sort_dataset,
         vae_downsample_rate=config.vae.vae_downsample_rate,
     )
+    print("LENGTH OF DATASET: ", len(dataset))
     accelerator.wait_for_everyone()
     if config.model.multi_scale:
         drop_last = True

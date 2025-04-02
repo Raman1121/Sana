@@ -80,8 +80,9 @@ class SanaImgDataset(torch.utils.data.Dataset):
             meta_data = json.load(open(osp.join(data_dir, "meta_data.json")))
             self.dataset.extend([osp.join(data_dir, i) for i in meta_data["img_names"]])
 
-        self.dataset = self.dataset * 2000
-        self.logger.info(colored("Dataset is repeat 2000 times for toy dataset", "red", attrs=["bold"]))
+        # self.dataset = self.dataset * 2000
+        self.dataset = self.dataset * 1
+        # self.logger.info(colored("Dataset is repeat 2000 times for toy dataset", "red", attrs=["bold"]))
         self.ori_imgs_nums = len(self)
         self.logger.info(f"Dataset samples: {len(self.dataset)}")
 

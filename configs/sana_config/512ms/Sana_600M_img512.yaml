@@ -1,13 +1,13 @@
 data:
-  data_dir: [data/data_public/dir1]
+  data_dir: [/raid/s2198939/MIMIC_ARRANGED/Train]
   image_size: 512
   caption_proportion:
     prompt: 1
-  external_caption_suffixes: ['', _InternVL2-26B, _VILA1-5-13B]
-  external_clipscore_suffixes:
-    - _InternVL2-26B_clip_score
-    - _VILA1-5-13B_clip_score
-    - _prompt_clip_score
+  # external_caption_suffixes: ['']
+  # external_clipscore_suffixes:
+  #   - _InternVL2-26B_clip_score
+  #   - _VILA1-5-13B_clip_score
+  #   - _prompt_clip_score
   clip_thr_temperature: 0.1
   clip_thr: 25.0
   load_text_feat: false
@@ -74,10 +74,10 @@ scheduler:
   vis_sampler: flow_dpm-solver
 # training setting
 train:
-  num_workers: 10
+  num_workers: 16
   seed: 1
   train_batch_size: 128
-  num_epochs: 100
+  num_epochs: 1
   gradient_accumulation_steps: 1
   grad_checkpointing: true
   gradient_clip: 0.1
@@ -99,7 +99,7 @@ train:
   visualize: true
   eval_sampling_steps: 500
   log_interval: 20
-  save_model_epochs: 5
+  save_model_epochs: 1
   save_model_steps: 500
   work_dir: output/debug
   online_metric: false
