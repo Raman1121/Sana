@@ -1,5 +1,5 @@
 data:
-  data_dir: [/pvc/MIMIC_ARRANGED/Train]
+  data_dir: [/raid/s2198939/MIMIC_ARRANGED/Train]
   image_size: 512
   caption_proportion:
     prompt: 1
