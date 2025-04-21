@@ -1,0 +1,132 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: ${USER}-job-train-${JOB_SUFFIX}
+  labels:
+    eidf/user: ${USER}
+    kueue.x-k8s.io/queue-name: ${QUEUE_NAME}
+    kueue.x-k8s.io/priority-class: batch-workload-priority
+spec:
+  completions: 1
+  parallelism: 1
+  completionMode: Indexed
+  backoffLimit: 6
+  activeDeadlineSeconds: 864000
+  ttlSecondsAfterFinished: 2592000
+  template:
+    metadata:
+      labels:
+        eidf/user: ${USER}
+    spec:
+      restartPolicy: OnFailure
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nvidia.com/gpu.product
+                    operator: In
+                    values:
+                      - NVIDIA-H200
+                      # - NVIDIA-A100-SXM4-80GB
+      tolerations:
+        - key: "eidf098"
+          operator: "Equal"
+          value: "True"
+          effect: "NoSchedule"
+        - key: "eidf107"
+          operator: "Equal"
+          value: "True"
+          effect: "NoSchedule"
+      containers:
+        - name: pytorch-cuda11-7
+          image: pytorch/pytorch:2.4.0-cuda12.1-cudnn9-devel
+          workingDir: "/workspace/Sana"
+          env:
+            # --- START ADDITION ---
+            - name: TZ
+              value: "Etc/UTC"
+            # --- END ADDITION ---
+            - name: DEBIAN_FRONTEND # Keep this one too!
+              value: "noninteractive"
+            - name: TORCH_NCCL_ASYNC_ERROR_HANDLING
+              value: "1"
+            - name: NCCL_DEBUG
+              value: "INFO"
+            - name: NCCL_IB_DISABLE
+              value: "1"
+            - name: MAX_DELTA
+              value: "${MAX_DELTA}"
+            - name: NCCL_IB_HCA
+              value: "^mlx5"
+            - name: PYTHONPATH
+              value: "/workspace/Sana"
+          command: ["/bin/bash", "-c"]
+          args:
+            - |-
+              apt install git-all
+              echo "Changing branch to eidf"
+              git checkout eidf
+
+              echo "Copying files to /pvc"
+              cp -r /workspace/Sana /pvc/
+              cd /pvc/Sana
+
+              # Set timezone non-interactively (alternative if TZ env var isn't enough)
+              # echo 'Etc/UTC' > /etc/timezone
+              # ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
+
+              # Run apt update and install with -y and noninteractive frontend
+              apt update && apt install -y --no-install-recommends \
+                  wget \
+                  git \
+                  unzip \
+                  zip \
+                  libgl1 \
+                  libglib2.0-0 \
+                  ffmpeg \
+                  tzdata \ # Explicitly install tzdata if needed \
+                  cmake 
+
+              # Clean up apt cache
+              rm -rf /var/lib/apt/lists/*
+
+              python -c "import torch; print(f'Torch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda}'); print(f'Torch path: {torch.__file__}')"
+
+              echo "Setting up environment..."
+              export PYTHONPATH=$PYTHONPATH:/workspace/Sana
+              chmod +x environment_setup.sh
+              ./environment_setup.sh
+
+              echo "Running training script..."
+              bash train_scripts/train.sh \
+                      configs/sana_config/512ms/Sana_1600M_img512.yaml \
+                      --data.data_dir="[/pvc/MIMIC_ARRANGED/Train]" \
+                      --data.type=SanaImgDataset \
+                      --model.load_from=hf://Efficient-Large-Model/Sana_1600M_512px/checkpoints/Sana_1600M_512px.pth \
+                      --model.multi_scale=false \
+                      --train.train_batch_size=256
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+              cpu: "4"
+              memory: "96Gi"
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+            - name: writeable
+              mountPath: /pvc
+            - name: dshm
+              mountPath: /dev/shm
+      volumes:
+        - name: workspace
+          nfs:
+            server: 10.24.6.77
+            path: /user/s2198939-eidf107
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi
+        - name: writeable
+          persistentVolumeClaim:
+            claimName: mimic-cxr2
