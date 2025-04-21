@@ -723,7 +723,7 @@ def main(cfg: SanaConfig) -> None:
     )
 
     # Manually creating validation prompts here
-    val_csv = pd.read_csv("/raid/s2198939/MIMIC_Dataset/physionet.org/files/mimic-cxr-jpg/2.0.0/LLavA-Rad-Annotations/ANNOTATED_CSV_FILES/LLAVARAD_ANNOTATIONS_TEST.csv")
+    val_csv = pd.read_csv("/pvc/MIMIC_Dataset/physionet.org/files/mimic-cxr-jpg/2.0.0/LLavA-Rad-Annotations/ANNOTATED_CSV_FILES/LLAVARAD_ANNOTATIONS_TEST.csv")
     all_val_prompts = list(val_csv['annotated_prompt'])
     config.train.validation_prompts = all_val_prompts[:15]
 
