@@ -1,5 +1,5 @@
 data:
-  data_dir: [data/data_public/dir1]
+  data_dir: [/pvc/MIMIC_ARRANGED/Train]
   image_size: 512
   caption_proportion:
     prompt: 1
