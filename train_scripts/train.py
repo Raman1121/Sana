@@ -20,6 +20,7 @@ import getpass
 import hashlib
 import json
 import os
+import pandas as pd
 import os.path as osp
 import time
 import warnings
@@ -720,6 +721,11 @@ def main(cfg: SanaConfig) -> None:
         config.train.null_embed_root,
         f"null_embed_diffusers_{config.text_encoder.text_encoder_name}_{max_length}token_{text_embed_dim}.pth",
     )
+
+    # Manually creating validation prompts here
+    val_csv = pd.read_csv("/raid/s2198939/MIMIC_Dataset/physionet.org/files/mimic-cxr-jpg/2.0.0/LLavA-Rad-Annotations/ANNOTATED_CSV_FILES/LLAVARAD_ANNOTATIONS_TEST.csv")
+    all_val_prompts = list(val_csv['annotated_prompt'])
+    config.train.validation_prompts = all_val_prompts[:15]
 
     # 2.preparing embeddings for visualization. We put it here for saving GPU memory
     if config.train.visualize and len(config.train.validation_prompts):

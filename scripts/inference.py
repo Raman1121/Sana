@@ -19,6 +19,7 @@ import os
 import re
 import subprocess
 import tarfile
+import pandas as pd
 import time
 import warnings
 from dataclasses import dataclass, field
@@ -89,6 +90,10 @@ def visualize(config, args, model, items, bs, sample_steps, cfg_scale, pag_scale
 
     generator = torch.Generator(device=device).manual_seed(args.seed)
     tqdm_desc = f"{save_root.split('/')[-1]} Using GPU: {args.gpu_id}: {args.start_index}-{args.end_index}"
+    count = 0
+    ALL_PROMPTS = []
+    ALL_GENERATION_NAMES = []
+    PROMPTS_DF = pd.DataFrame(columns=["prompt", "img_savename"])
     for chunk in tqdm(list(get_chunks(items, bs)), desc=tqdm_desc, unit="batch", position=args.gpu_id, leave=True):
         # data prepare
         prompts, hw, ar = (
@@ -124,12 +129,16 @@ def visualize(config, args, model, items, bs, sample_steps, cfg_scale, pag_scale
             max_length_all = config.text_encoder.model_max_length
             prompts_all = prompts
         else:
+            print("Preparing CHI prompts!!!!!!")
             chi_prompt = "\n".join(config.text_encoder.chi_prompt)
             prompts_all = [chi_prompt + prompt for prompt in prompts]
             num_chi_prompt_tokens = len(tokenizer.encode(chi_prompt))
             max_length_all = (
                 num_chi_prompt_tokens + config.text_encoder.model_max_length - 2
             )  # magic number 2: [bos], [_]
+            print("CHI PROMPT: ", chi_prompt)
+
+        ALL_PROMPTS.extend(prompts_all)
 
         caption_token = tokenizer(
             prompts_all, max_length=max_length_all, padding="max_length", truncation=True, return_tensors="pt"
@@ -220,9 +229,19 @@ def visualize(config, args, model, items, bs, sample_steps, cfg_scale, pag_scale
 
         os.umask(0o000)
         for i, sample in enumerate(samples):
-            save_file_name = f"{chunk[i]}.jpg" if dict_prompt else f"{prompts[i][:100]}.jpg"
+            # save_file_name = f"{chunk[i]}.jpg" if dict_prompt else f"{prompts[i][:100]}.jpg"
+            save_file_name = "Prompt_" + str(count) + ".jpg"
             save_path = os.path.join(save_root, save_file_name)
+            # import pdb; pdb.set_trace()
             save_image(sample, save_path, nrow=1, normalize=True, value_range=(-1, 1))
+            ALL_GENERATION_NAMES.append(save_file_name)
+            count += 1
+
+    PROMPTS_DF["prompt"] = ALL_PROMPTS
+    PROMPTS_DF["img_savename"] = ALL_GENERATION_NAMES
+    PROMPTS_DF.to_csv(os.path.join(save_root, "prompts_INFO.csv"), index=False)
+    print(f"Saved prompts info at {os.path.join(save_root, 'prompts_INFO.csv')}")
+            
 
 
 def get_args():

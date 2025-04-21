@@ -2,7 +2,7 @@
 set -e
 
 work_dir=output/debug
-np=2
+np=1
 
 
 if [[ $1 == *.yaml ]]; then
@@ -20,7 +20,8 @@ TRITON_PRINT_AUTOTUNING=1 \
         --config_path=$config \
         --work_dir=$work_dir \
         --name=tmp \
-        --resume_from=latest \
         --report_to=tensorboard \
         --debug=true \
         "$@"
+
+        # --resume_from=latest \

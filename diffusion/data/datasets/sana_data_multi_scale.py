@@ -29,6 +29,8 @@ from diffusion.data.datasets.sana_data import SanaWebDataset
 from diffusion.data.datasets.utils import *
 from diffusion.data.wids import lru_json_load
 
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def get_closest_ratio(height: float, width: float, ratios: dict):
     aspect_ratio = height / width
