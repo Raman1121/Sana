@@ -107,7 +107,6 @@ spec:
 
               pip install pandas
               pip install pyrallis
-              pip install opencv-python
 
               echo "Running training script..."
               bash train_scripts/train.sh \
