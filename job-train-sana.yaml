@@ -78,7 +78,9 @@ spec:
                   cmake \
                   libgl1-mesa-glx \
                   libsm6 \
-                  libxext6
+                  libxext6 \
+                  libfontconfig1 \
+                  libxrender1
               
               apt list --installed | grep libgl1
               

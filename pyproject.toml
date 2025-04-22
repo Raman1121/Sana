@@ -27,7 +27,7 @@ dependencies = [
     "ipdb",
     "mmcv==1.7.2",
     "omegaconf",
-    "opencv-python-headless",
+    "opencv-contrib-python",
     "optimum",
     "patch_conv",
     "peft",
