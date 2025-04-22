@@ -75,7 +75,9 @@ spec:
                   libglib2.0-0 \
                   ffmpeg \
                   tzdata \ # Explicitly install tzdata if needed \
-                  cmake 
+                  cmake \
+                  libgl1 \
+                  libglib2.0-0
               
               DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git ca-certificates
               echo "Git installed"
