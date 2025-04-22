@@ -77,7 +77,8 @@ spec:
                   tzdata \ # Explicitly install tzdata if needed \
                   cmake \
                   libgl1 \
-                  libglib2.0-0
+                  libglib2.0-0 \
+                  libgl1-mesa-glx 
               
               DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git ca-certificates
               echo "Git installed"
