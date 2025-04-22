@@ -99,6 +99,7 @@ spec:
               ./environment_setup.sh
 
               pip install pandas
+              pip install pyrallis
 
               echo "Running training script..."
               bash train_scripts/train.sh \
