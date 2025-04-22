@@ -90,13 +90,9 @@ spec:
               # echo 'Etc/UTC' > /etc/timezone
               # ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
-              
-
               # Clean up apt cache
               rm -rf /var/lib/apt/lists/*
-
-              python -c "import torch; print(f'Torch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda}'); print(f'Torch path: {torch.__file__}')"
-
+              
               echo "Setting up environment..."
               export PYTHONPATH=$PYTHONPATH:/workspace/Sana
               chmod +x environment_setup.sh
