@@ -78,7 +78,7 @@ spec:
                   cmake 
               
               DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git ca-certificates
-              echo "Git installed
+              echo "Git installed"
               echo "Changing branch to eidf"
               git checkout eidf
 
@@ -92,7 +92,7 @@ spec:
 
               # Clean up apt cache
               rm -rf /var/lib/apt/lists/*
-              
+
               echo "Setting up environment..."
               export PYTHONPATH=$PYTHONPATH:/workspace/Sana
               chmod +x environment_setup.sh
@@ -104,7 +104,7 @@ spec:
               echo "Running training script..."
               bash train_scripts/train.sh \
                       configs/sana_config/512ms/Sana_1600M_img512.yaml \
-                      --data.data_dir="[/pvc/MIMIC_ARRANGED/Train]" \
+                      --data.data_dir=\"[/pvc/MIMIC_ARRANGED/Train]\" \
                       --data.type=SanaImgDataset \
                       --model.load_from=hf://Efficient-Large-Model/Sana_1600M_512px/checkpoints/Sana_1600M_512px.pth \
                       --model.multi_scale=false \
