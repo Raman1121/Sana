@@ -39,8 +39,8 @@ spec:
           value: "True"
           effect: "NoSchedule"
       containers:
-        - name: pytorch-sana
-          image: raman07/sana:latest
+        - name: pytorch-cuda11-7
+          image: pytorch/pytorch:2.4.0-cuda12.1-cudnn9-devel
           workingDir: "/workspace/Sana"
           env:
             # --- START ADDITION ---
@@ -64,6 +64,7 @@ spec:
           command: ["/bin/bash", "-c"]
           args:
             - |-
+              
               # Run apt update and install with -y and noninteractive frontend
               apt update && apt install -y --no-install-recommends \
                   wget \
@@ -77,7 +78,7 @@ spec:
                   cmake 
               
               DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git ca-certificates
-              echo "Git installed"
+              echo "Git installed
               echo "Changing branch to eidf"
               git checkout eidf
 
