@@ -98,6 +98,8 @@ spec:
               chmod +x environment_setup.sh
               ./environment_setup.sh
 
+              pip install pandas
+
               echo "Running training script..."
               bash train_scripts/train.sh \
                       configs/sana_config/512ms/Sana_1600M_img512.yaml \
