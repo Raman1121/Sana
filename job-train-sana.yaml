@@ -64,7 +64,8 @@ spec:
           command: ["/bin/bash", "-c"]
           args:
             - |-
-              apt install git-all
+              DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git ca-certificates
+              echo "Git installed"
               echo "Changing branch to eidf"
               git checkout eidf
 
