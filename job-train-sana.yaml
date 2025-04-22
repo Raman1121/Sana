@@ -39,8 +39,8 @@ spec:
           value: "True"
           effect: "NoSchedule"
       containers:
-        - name: pytorch-cuda11-7
-          image: pytorch/pytorch:2.4.0-cuda12.1-cudnn9-devel
+        - name: pytorch-sana
+          image: raman07/sana:latest
           workingDir: "/workspace/Sana"
           env:
             # --- START ADDITION ---
@@ -64,6 +64,18 @@ spec:
           command: ["/bin/bash", "-c"]
           args:
             - |-
+              # Run apt update and install with -y and noninteractive frontend
+              apt update && apt install -y --no-install-recommends \
+                  wget \
+                  git \
+                  unzip \
+                  zip \
+                  libgl1 \
+                  libglib2.0-0 \
+                  ffmpeg \
+                  tzdata \ # Explicitly install tzdata if needed \
+                  cmake 
+              
               DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git ca-certificates
               echo "Git installed"
               echo "Changing branch to eidf"
@@ -77,17 +89,7 @@ spec:
               # echo 'Etc/UTC' > /etc/timezone
               # ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
-              # Run apt update and install with -y and noninteractive frontend
-              apt update && apt install -y --no-install-recommends \
-                  wget \
-                  git \
-                  unzip \
-                  zip \
-                  libgl1 \
-                  libglib2.0-0 \
-                  ffmpeg \
-                  tzdata \ # Explicitly install tzdata if needed \
-                  cmake 
+              
 
               # Clean up apt cache
               rm -rf /var/lib/apt/lists/*
