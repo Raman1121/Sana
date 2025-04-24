@@ -117,7 +117,7 @@ spec:
               pip install pyrallis
 
               echo "Running training script..."
-              bash train_scripts/train.py \
+              python train_scripts/train.py \
                       --config_path=configs/sana_config/512ms/Sana_1600M_img512.yaml \
                       --data.data_dir="[/pvc/MIMIC_ARRANGED/Train]" \
                       --data.type=SanaImgDataset \
