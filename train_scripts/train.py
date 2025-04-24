@@ -629,9 +629,6 @@ def main(cfg: SanaConfig) -> None:
     config = cfg
     args = cfg
 
-    print("################## CONFIG ##################")
-    print(config)
-
     # 1.Initialize training mode
     if config.train.use_fsdp:
         set_fsdp_env()
