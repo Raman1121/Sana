@@ -101,7 +101,7 @@ spec:
               rm -rf /var/lib/apt/lists/*
 
               echo "Setting up environment..."
-              export PYTHONPATH=$PYTHONPATH:/workspace/Sana
+              export PYTHONPATH=$PYTHONPATH:/pvc/Sana
 
               echo "Installing Pytorch"
               pip install torch==2.4.1 torchvision==0.19.1 --index-url https://download.pytorch.org/whl/cu121
