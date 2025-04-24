@@ -90,19 +90,21 @@ spec:
               git checkout eidf
 
               echo "Copying files to /pvc"
-              cp -r /workspace/Sana /pvc/Sana
+              mkdir -p /pvc/Sana/
+              cp -r /workspace/Sana/* /pvc/Sana
               cd /pvc/Sana
-
-              # Set timezone non-interactively (alternative if TZ env var isn't enough)
-              # echo 'Etc/UTC' > /etc/timezone
-              # ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
+              ls /pvc/
 
               # Clean up apt cache
               rm -rf /var/lib/apt/lists/*
+              
+              python3 -m pip install --upgrade pip setuptools wheel
 
+              
               echo "Setting up environment..."
-              export PYTHONPATH=$PYTHONPATH:/pvc/Sana
-
+              export PYTHONPATH=$PYTHONPATH:/pvc/Sana/
+              echo "Python Path"
+              echo $PYTHONPATH
               echo "Installing Pytorch"
               pip install torch==2.4.1 torchvision==0.19.1 --index-url https://download.pytorch.org/whl/cu121
 
