@@ -90,7 +90,7 @@ spec:
               git checkout eidf
 
               echo "Copying files to /pvc"
-              cp -r /workspace/Sana /pvc/
+              cp -r /workspace/Sana /pvc/Sana
               cd /pvc/Sana
 
               # Set timezone non-interactively (alternative if TZ env var isn't enough)
@@ -108,6 +108,7 @@ spec:
 
               python -c "import torch; print(f'Torch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda}'); print(f'Torch path: {torch.__file__}')"
 
+              echo "Installing other dependencies..."
               chmod +x environment_setup.sh
               ./environment_setup.sh
 
