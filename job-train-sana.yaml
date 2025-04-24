@@ -114,7 +114,7 @@ spec:
               echo "Running training script..."
               bash train_scripts/train.sh \
                       configs/sana_config/512ms/Sana_1600M_img512.yaml \
-                      --data.data_dir=\"[/pvc/MIMIC_ARRANGED/Train]\" \
+                      --data.data_dir="[/pvc/MIMIC_ARRANGED/Train]" \
                       --data.type=SanaImgDataset \
                       --model.load_from=hf://Efficient-Large-Model/Sana_1600M_512px/checkpoints/Sana_1600M_512px.pth \
                       --model.multi_scale=false \
