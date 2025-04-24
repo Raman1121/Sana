@@ -21,7 +21,7 @@ TRITON_PRINT_AUTOTUNING=1 \
         --work_dir=$work_dir \
         --name=tmp \
         --report_to=tensorboard \
-        --debug=true \
+        --debug=false \
         "$@"
 
         # --resume_from=latest \
