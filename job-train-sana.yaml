@@ -107,7 +107,7 @@ spec:
               pip install torch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 --index-url https://download.pytorch.org/whl/cu121
 
               python -c "import torch; print(f'Torch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda}'); print(f'Torch path: {torch.__file__}')"
-              
+
               chmod +x environment_setup.sh
               ./environment_setup.sh
 
@@ -117,8 +117,8 @@ spec:
               pip install pyrallis
 
               echo "Running training script..."
-              bash train_scripts/train.sh \
-                      configs/sana_config/512ms/Sana_1600M_img512.yaml \
+              bash train_scripts/train.py \
+                      --config_path=configs/sana_config/512ms/Sana_1600M_img512.yaml \
                       --data.data_dir="[/pvc/MIMIC_ARRANGED/Train]" \
                       --data.type=SanaImgDataset \
                       --model.load_from=hf://Efficient-Large-Model/Sana_1600M_512px/checkpoints/Sana_1600M_512px.pth \
