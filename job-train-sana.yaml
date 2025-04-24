@@ -27,8 +27,8 @@ spec:
                   - key: nvidia.com/gpu.product
                     operator: In
                     values:
-                      - NVIDIA-H200
-                      # - NVIDIA-A100-SXM4-80GB
+                      # - NVIDIA-H200
+                      - NVIDIA-A100-SXM4-80GB
       tolerations:
         - key: "eidf098"
           operator: "Equal"
@@ -39,8 +39,8 @@ spec:
           value: "True"
           effect: "NoSchedule"
       containers:
-        - name: pytorch-cuda11-7
-          image: pytorch/pytorch:2.4.0-cuda12.1-cudnn9-devel
+        - name: open-cv-pytorch
+          image: demisto/opencv:1.0.0.2034788
           workingDir: "/workspace/Sana"
           env:
             # --- START ADDITION ---
@@ -102,6 +102,9 @@ spec:
 
               echo "Setting up environment..."
               export PYTHONPATH=$PYTHONPATH:/workspace/Sana
+
+              echo "Installing Pytorch"
+              pip install torch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 --index-url https://download.pytorch.org/whl/cu121
               chmod +x environment_setup.sh
               ./environment_setup.sh
 
