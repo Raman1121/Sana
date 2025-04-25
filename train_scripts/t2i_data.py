@@ -78,6 +78,13 @@ class MimicCXRDataset(torch.utils.data.Dataset):
             all_tokens.append(batch_encoding)
         print("Tokenization complete.")
 
+        self.tokens = all_tokens
+        self.uncond_tokens = self.tokenizer(
+                "",
+                padding="max_length",
+                max_length=tokenizer.model_max_length,
+                truncation=True,
+            )
 
     def __len__(self):
         return len(self.df)
