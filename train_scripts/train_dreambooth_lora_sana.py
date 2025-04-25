@@ -585,6 +585,15 @@ def parse_args(input_args=None):
 
     ######################## NEW ARGS
     parser.add_argument(
+        "--max_train_samples",
+        type=int,
+        default=None,
+        help=(
+            "For debugging purposes or quicker training, truncate the number of training examples to this "
+            "value if set."
+        ),
+    )
+    parser.add_argument(
         "--train_data_dir",
         type=str,
         default=None,
