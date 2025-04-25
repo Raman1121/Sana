@@ -113,6 +113,12 @@ spec:
               pip install pandas
               pip install pyrallis
 
+              pip install -U "huggingface_hub[cli]"
+              echo "Logging in to Hugging Face..."
+              chmod 600 /pvc/hf_token.txt
+              chmod +x scripts/hf-login.sh
+              ./scripts/hf-login.sh
+
               echo "Running training script..."
               chmod +x train_scripts/train.sh
               bash train_scripts/train.sh
