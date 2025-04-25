@@ -121,10 +121,8 @@ spec:
 
               echo "Running training script..."
               chmod +x train_scripts/train_lora.sh
-              bash train_scripts/train_lora.sh > log_lora_training.txt 2>&1
+              bash train_scripts/train_lora.sh
 
-
-                
           resources:
             limits:
               nvidia.com/gpu: "1"
