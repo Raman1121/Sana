@@ -28,7 +28,8 @@ spec:
                     operator: In
                     values:
                       # - NVIDIA-H200
-                      - NVIDIA-A100-SXM4-80GB
+                      # - NVIDIA-A100-SXM4-80GB
+                      - NVIDIA-H100
       tolerations:
         - key: "eidf098"
           operator: "Equal"
@@ -125,7 +126,7 @@ spec:
 
           resources:
             limits:
-              nvidia.com/gpu: "2"
+              nvidia.com/gpu: "6"
               cpu: "8"
               memory: "96Gi"
           volumeMounts:

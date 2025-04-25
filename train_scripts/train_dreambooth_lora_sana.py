@@ -300,7 +300,7 @@ def parse_args(input_args=None):
     parser.add_argument(
         "--rank",
         type=int,
-        default=4,
+        default=32,
         help=("The dimension of the LoRA update matrices."),
     )
     parser.add_argument(
@@ -433,7 +433,7 @@ def parse_args(input_args=None):
     parser.add_argument(
         "--dataloader_num_workers",
         type=int,
-        default=0,
+        default=8,
         help=(
             "Number of subprocesses to use for data loading. 0 means that the data will be loaded in the main process."
         ),
@@ -1038,7 +1038,7 @@ def main(args):
     # now we will add new LoRA weights the transformer layers
     transformer_lora_config = LoraConfig(
         r=args.rank,
-        lora_alpha=args.rank,
+        lora_alpha=args.rank*2,
         init_lora_weights="gaussian",
         target_modules=target_modules,
     )
@@ -1265,7 +1265,7 @@ def main(args):
         caption_col_key=args.caption_column,
     )
 
-    args.validation_prompts = test_df[args.caption_column].tolist()[0:20]
+    args.validation_prompts = test_df[args.caption_column].tolist()[0:10]
 
     print("#### Length of training dataset: ", len(train_dataset))
     print("#### Length of test dataset: ", len(test_dataset))
