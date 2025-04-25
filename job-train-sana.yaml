@@ -128,7 +128,7 @@ spec:
                 --data.type=SanaImgDataset \
                 --model.multi_scale=false \
                 --train.train_batch_size=16 \
-                --model.load_from="hf://Efficient-Large-Model/Sana_1600M_512px/checkpoints/Sana_1600M_512px.pth" \
+                --model.load_from=hf://Efficient-Large-Model/Sana_1600M_512px/checkpoints/Sana_1600M_512px.pth \
                 
           resources:
             limits:
