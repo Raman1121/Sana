@@ -79,7 +79,7 @@ class MimicCXRDataset(torch.utils.data.Dataset):
         
         sample = {
             "pixel_values": im,
-            "text": self.df[self.caption_col_key].iloc[idx],
+            "prompts": self.df[self.caption_col_key].iloc[idx],
         }
 
         if self.tokenizer is not None:
