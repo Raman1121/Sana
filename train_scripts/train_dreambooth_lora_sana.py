@@ -1239,7 +1239,7 @@ def main(args):
 
     train_dataset = MimicCXRDataset(
         train_df,
-        tokenizer=tokenizer,
+        # tokenizer=tokenizer,          # There seems to be no need for tokenizer for encoding prompts in SANA
         transform=train_transforms,
         seed=args.seed,
         img_path_key=args.image_column,
@@ -1255,7 +1255,7 @@ def main(args):
 
     test_dataset = MimicCXRDataset(
         test_df,
-        tokenizer=tokenizer,
+        # tokenizer=tokenizer,          # There seems to be no need for tokenizer for encoding prompts in SANA
         transform=test_transforms,
         seed=args.seed,
         img_path_key=args.image_column,

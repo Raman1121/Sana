@@ -45,41 +45,15 @@ class MimicCXRDataset(torch.utils.data.Dataset):
             ]
         ), "All text must be strings"
 
-        # if self.tokenizer is not None:
-        #     self.tokens = self.tokenizer(
-        #         self.df[self.caption_col_key].to_list(),
-        #         padding="max_length",
-        #         max_length=tokenizer.model_max_length,
-        #         truncation=True,
-        #     )
-        #     self.uncond_tokens = self.tokenizer(
-        #         "",
-        #         padding="max_length",
-        #         max_length=tokenizer.model_max_length,
-        #         truncation=True,
-        #     )
-
-        batch_size = 64  # Choose a reasonable batch size (adjust based on memory/performance)
-        all_tokens = [] # List to store tokenized results from batches
-        num_batches = math.ceil(len(self.df) / batch_size) # Calculate number of batches
-
-        print(f"Tokenizing {len(self.df)} captions in {num_batches} batches of size {batch_size}...")
-
-        for i in tqdm(range(0, len(self.df), batch_size), desc="Tokenizing batches"):
-            batch_captions = self.df.iloc[i : i + batch_size][self.caption_col_key].to_list()
-            # Tokenize just the current batch
-            batch_encoding = self.tokenizer(
-                batch_captions,
+        if self.tokenizer is not None:
+            print("!!! Tokenizing the dataset")
+            self.tokens = self.tokenizer(
+                self.df[self.caption_col_key].to_list(),
                 padding="max_length",
-                max_length=self.tokenizer.model_max_length, # Ensure this is a sane value
+                max_length=tokenizer.model_max_length,
                 truncation=True,
-                return_tensors="pt" # Or "np", "tf" depending on your needs later
             )
-            all_tokens.append(batch_encoding)
-        print("Tokenization complete.")
-
-        self.tokens = torch.cat(all_tokens, dim=0) # Concatenate all batches into a single tensor
-        self.uncond_tokens = self.tokenizer(
+            self.uncond_tokens = self.tokenizer(
                 "",
                 padding="max_length",
                 max_length=tokenizer.model_max_length,
