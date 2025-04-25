@@ -2,7 +2,7 @@
 
 export MODEL_NAME="Efficient-Large-Model/Sana_1600M_1024px_BF16_diffusers"
 export OUTPUT_DIR="trained-sana-lora"
-export BATCH_SIZE=8
+export BATCH_SIZE=4
 export LR=1e-4
 export MAX_TRAIN_STEPS=9000
 
@@ -22,7 +22,7 @@ accelerate launch --num_processes 6 --main_process_port 29500 \
   --resolution=1024 \
   --train_batch_size=$BATCH_SIZE \
   --rank=$LORA_RANK \
-  --gradient_accumulation_steps=2 \
+  --gradient_accumulation_steps=4 \
   --use_8bit_adam \
   --offload \
   --learning_rate=$LR \
