@@ -926,90 +926,7 @@ def main(args):
             # sample_dataloader = torch.utils.data.DataLoader(sample_dataset, batch_size=args.sample_batch_size)
             # sample_dataloader = accelerator.prepare(sample_dataloader)
 
-            ############## MIMIC CXR DATASET ################
-            assert args.train_csv is not None
-            assert args.test_csv is not None
-
-            train_transforms = transforms.Compose(
-                [
-                    transforms.Resize(args.resolution, interpolation=transforms.InterpolationMode.BILINEAR),
-                    transforms.CenterCrop(args.resolution) if args.center_crop else transforms.RandomCrop(args.resolution),
-                    transforms.RandomHorizontalFlip() if args.random_flip else transforms.Lambda(lambda x: x),
-                    transforms.ToTensor(),
-                    transforms.Normalize([0.5], [0.5]),
-                ]
-            )
-
-            test_transforms = transforms.Compose(
-                [
-                    transforms.Resize(args.resolution, interpolation=transforms.InterpolationMode.BILINEAR),
-                    transforms.CenterCrop(args.resolution) if args.center_crop else transforms.RandomCrop(args.resolution),
-                    transforms.RandomHorizontalFlip() if args.random_flip else transforms.Lambda(lambda x: x),
-                    transforms.ToTensor(),
-                ]
-            )
-
-            IMG_DIR = args.train_data_dir
-            try:
-                train_df = pd.read_excel(args.train_csv)
-            except:
-                train_df = pd.read_csv(args.train_csv)
-            train_df['path'] = train_df['path'].apply(lambda x: os.path.join(IMG_DIR, x))
-
-            if(args.max_train_samples is not None):
-                print("Sampling {} samples from the training dataset".format(args.max_train_samples))
-                train_df = train_df.sample(n=args.max_train_samples, random_state=args.seed).reset_index(drop=True)
-
-            train_dataset = MimicCXRDataset(
-                train_df,
-                tokenizer=tokenizer,
-                transform=train_transforms,
-                seed=args.seed,
-                img_path_key=args.image_column,
-                caption_col_key=args.caption_column,
-            )
-            try:
-                test_df = pd.read_excel(args.test_csv)
-            except:
-                test_df = pd.read_csv(args.test_csv)
-
-            test_df['path'] = test_df['path'].apply(lambda x: os.path.join(IMG_DIR, x))
-            test_df = test_df.dropna(subset=[args.caption_column]).reset_index(drop=True)
-
-            test_dataset = MimicCXRDataset(
-                test_df,
-                tokenizer=tokenizer,
-                transform=test_transforms,
-                seed=args.seed,
-                img_path_key=args.image_column,
-                caption_col_key=args.caption_column,
-            )
-
-            args.validation_prompts = test_df[args.caption_column].tolist()[0:20]
-
-            print("#### Length of training dataset: ", len(train_dataset))
-            print("#### Length of test dataset: ", len(test_dataset))
-
-            ################ DATALOADER ################
-            # DataLoader creation
-            train_dataloader = torch.utils.data.DataLoader(
-                train_dataset,
-                shuffle=True,
-                # collate_fn=collate_fn,
-                batch_size=args.train_batch_size,
-                num_workers=args.dataloader_num_workers,
-            )
-            test_dataloader = torch.utils.data.DataLoader(
-                test_dataset,
-                shuffle=False,
-                # collate_fn=collate_fn,
-                batch_size=args.eval_batch_size,
-                num_workers=args.dataloader_num_workers,
-            )
-
             # Prepare everything with our `accelerator`.
-            train_dataloader = accelerator.prepare(train_dataloader)
-            test_dataloader = accelerator.prepare(test_dataloader)
             pipeline.to(accelerator.device)
 
             # for example in tqdm(
@@ -1276,6 +1193,87 @@ def main(args):
     #     collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
     #     num_workers=args.dataloader_num_workers,
     # )
+
+    ############## MIMIC CXR DATASET ################
+    assert args.train_csv is not None
+    assert args.test_csv is not None
+
+    train_transforms = transforms.Compose(
+        [
+            transforms.Resize(args.resolution, interpolation=transforms.InterpolationMode.BILINEAR),
+            transforms.CenterCrop(args.resolution) if args.center_crop else transforms.RandomCrop(args.resolution),
+            transforms.RandomHorizontalFlip() if args.random_flip else transforms.Lambda(lambda x: x),
+            transforms.ToTensor(),
+            transforms.Normalize([0.5], [0.5]),
+        ]
+    )
+
+    test_transforms = transforms.Compose(
+        [
+            transforms.Resize(args.resolution, interpolation=transforms.InterpolationMode.BILINEAR),
+            transforms.CenterCrop(args.resolution) if args.center_crop else transforms.RandomCrop(args.resolution),
+            transforms.RandomHorizontalFlip() if args.random_flip else transforms.Lambda(lambda x: x),
+            transforms.ToTensor(),
+        ]
+    )
+
+    IMG_DIR = args.train_data_dir
+    try:
+        train_df = pd.read_excel(args.train_csv)
+    except:
+        train_df = pd.read_csv(args.train_csv)
+    train_df['path'] = train_df['path'].apply(lambda x: os.path.join(IMG_DIR, x))
+
+    if(args.max_train_samples is not None):
+        print("Sampling {} samples from the training dataset".format(args.max_train_samples))
+        train_df = train_df.sample(n=args.max_train_samples, random_state=args.seed).reset_index(drop=True)
+
+    train_dataset = MimicCXRDataset(
+        train_df,
+        tokenizer=tokenizer,
+        transform=train_transforms,
+        seed=args.seed,
+        img_path_key=args.image_column,
+        caption_col_key=args.caption_column,
+    )
+    try:
+        test_df = pd.read_excel(args.test_csv)
+    except:
+        test_df = pd.read_csv(args.test_csv)
+
+    test_df['path'] = test_df['path'].apply(lambda x: os.path.join(IMG_DIR, x))
+    test_df = test_df.dropna(subset=[args.caption_column]).reset_index(drop=True)
+
+    test_dataset = MimicCXRDataset(
+        test_df,
+        tokenizer=tokenizer,
+        transform=test_transforms,
+        seed=args.seed,
+        img_path_key=args.image_column,
+        caption_col_key=args.caption_column,
+    )
+
+    args.validation_prompts = test_df[args.caption_column].tolist()[0:20]
+
+    print("#### Length of training dataset: ", len(train_dataset))
+    print("#### Length of test dataset: ", len(test_dataset))
+
+    ################ DATALOADER ################
+    # DataLoader creation
+    train_dataloader = torch.utils.data.DataLoader(
+        train_dataset,
+        shuffle=True,
+        # collate_fn=collate_fn,
+        batch_size=args.train_batch_size,
+        num_workers=args.dataloader_num_workers,
+    )
+    test_dataloader = torch.utils.data.DataLoader(
+        test_dataset,
+        shuffle=False,
+        # collate_fn=collate_fn,
+        batch_size=args.eval_batch_size,
+        num_workers=args.dataloader_num_workers,
+    )
 
     def compute_text_embeddings(prompt, text_encoding_pipeline):
         text_encoding_pipeline = text_encoding_pipeline.to(accelerator.device)
