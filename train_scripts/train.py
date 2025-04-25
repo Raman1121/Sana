@@ -886,7 +886,7 @@ def main(cfg: SanaConfig) -> None:
             model=model,
             model_ema=model_ema,
             FSDP=config.train.use_fsdp,
-            load_ema=config.model.resume_from.get("load_ema", False),
+            load_ema=False,
             null_embed_path=null_embed_path,
         )
         logger.warning(f"Missing keys: {missing}")
