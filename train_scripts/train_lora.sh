@@ -21,6 +21,7 @@ accelerate launch --num_processes 2 --main_process_port 29500 \
   --train_batch_size=$BATCH_SIZE \
   --gradient_accumulation_steps=1 \
   --use_8bit_adam \
+  --offload \
   --learning_rate=$LR \
   --report_to="tensorboard" \
   --lr_scheduler="constant" \

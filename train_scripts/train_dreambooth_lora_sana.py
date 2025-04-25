@@ -902,6 +902,7 @@ def main(args):
 
     # Generate class images if prior preservation is enabled.
     if args.with_prior_preservation:
+        print("USING PRIOR PRESERVATION !!!!!!!")
         class_images_dir = Path(args.class_data_dir)
         if not class_images_dir.exists():
             class_images_dir.mkdir(parents=True)
@@ -918,8 +919,8 @@ def main(args):
             pipeline.transformer = pipeline.transformer.to(torch.float16)
             pipeline.set_progress_bar_config(disable=True)
 
-            num_new_images = args.num_class_images - cur_class_images
-            logger.info(f"Number of class images to sample: {num_new_images}.")
+            # num_new_images = args.num_class_images - cur_class_images
+            # logger.info(f"Number of class images to sample: {num_new_images}.")
 
             # sample_dataset = PromptDataset(args.class_prompt, num_new_images)
             # sample_dataloader = torch.utils.data.DataLoader(sample_dataset, batch_size=args.sample_batch_size)
@@ -985,6 +986,9 @@ def main(args):
             )
 
             args.validation_prompts = test_df[args.caption_column].tolist()[0:20]
+
+            print("#### Length of training dataset: ", len(train_dataset))
+            print("#### Length of test dataset: ", len(test_dataset))
 
             ################ DATALOADER ################
             # DataLoader creation
@@ -1288,10 +1292,10 @@ def main(args):
     # If no type of tuning is done on the text_encoder and custom instance prompts are NOT
     # provided (i.e. the --instance_prompt is used for all images), we encode the instance prompt once to avoid
     # the redundant encoding.
-    if not train_dataset.custom_instance_prompts:
-        instance_prompt_hidden_states, instance_prompt_attention_mask = compute_text_embeddings(
-            args.instance_prompt, text_encoding_pipeline
-        )
+    # if not train_dataset.custom_instance_prompts:
+    #     instance_prompt_hidden_states, instance_prompt_attention_mask = compute_text_embeddings(
+    #         args.instance_prompt, text_encoding_pipeline
+    #     )
 
     # Handle class prompt for prior-preservation.
     if args.with_prior_preservation:
