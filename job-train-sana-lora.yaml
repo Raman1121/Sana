@@ -28,8 +28,8 @@ spec:
                     operator: In
                     values:
                       # - NVIDIA-H200
-                      # - NVIDIA-A100-SXM4-80GB
-                      - NVIDIA-H100
+                      - NVIDIA-A100-SXM4-80GB
+                      # - NVIDIA-H100
       tolerations:
         - key: "eidf098"
           operator: "Equal"
