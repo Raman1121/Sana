@@ -242,21 +242,6 @@ def parse_args(input_args=None):
         help="The directory where the downloaded models and datasets will be stored.",
     )
 
-    parser.add_argument(
-        "--image_column",
-        type=str,
-        default="image",
-        help="The column of the dataset containing the target image. By "
-        "default, the standard Image Dataset maps out 'file_name' "
-        "to 'image'.",
-    )
-    parser.add_argument(
-        "--caption_column",
-        type=str,
-        default=None,
-        help="The column of the dataset containing the instance prompt for each image",
-    )
-
     parser.add_argument("--repeats", type=int, default=1, help="How many times to repeat the training data.")
 
     parser.add_argument(
@@ -598,7 +583,7 @@ def parse_args(input_args=None):
     )
     parser.add_argument("--local_rank", type=int, default=-1, help="For distributed training: local_rank")
 
-    #### NEW ARGS
+    ######################## NEW ARGS
     parser.add_argument(
         "--train_data_dir",
         type=str,
