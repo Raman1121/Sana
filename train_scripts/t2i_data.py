@@ -3,6 +3,8 @@ from PIL import Image
 import random
 import pandas as pd
 from pathlib import Path
+import math
+from tqdm.auto import tqdm
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -43,19 +45,39 @@ class MimicCXRDataset(torch.utils.data.Dataset):
             ]
         ), "All text must be strings"
 
-        if self.tokenizer is not None:
-            self.tokens = self.tokenizer(
-                self.df[self.caption_col_key].to_list(),
+        # if self.tokenizer is not None:
+        #     self.tokens = self.tokenizer(
+        #         self.df[self.caption_col_key].to_list(),
+        #         padding="max_length",
+        #         max_length=tokenizer.model_max_length,
+        #         truncation=True,
+        #     )
+        #     self.uncond_tokens = self.tokenizer(
+        #         "",
+        #         padding="max_length",
+        #         max_length=tokenizer.model_max_length,
+        #         truncation=True,
+        #     )
+
+        batch_size = 1024  # Choose a reasonable batch size (adjust based on memory/performance)
+        all_tokens = [] # List to store tokenized results from batches
+        num_batches = math.ceil(len(self.df) / batch_size) # Calculate number of batches
+
+        print(f"Tokenizing {len(self.df)} captions in {num_batches} batches of size {batch_size}...")
+
+        for i in tqdm(range(0, len(self.df), batch_size), desc="Tokenizing batches"):
+            batch_captions = self.df.iloc[i : i + batch_size][self.caption_col_key].to_list()
+            # Tokenize just the current batch
+            batch_encoding = self.tokenizer(
+                batch_captions,
                 padding="max_length",
-                max_length=tokenizer.model_max_length,
+                max_length=self.tokenizer.model_max_length, # Ensure this is a sane value
                 truncation=True,
+                return_tensors="pt" # Or "np", "tf" depending on your needs later
             )
-            self.uncond_tokens = self.tokenizer(
-                "",
-                padding="max_length",
-                max_length=tokenizer.model_max_length,
-                truncation=True,
-            )
+            all_tokens.append(batch_encoding)
+        print("Tokenization complete.")
+
 
     def __len__(self):
         return len(self.df)
@@ -70,7 +92,7 @@ class MimicCXRDataset(torch.utils.data.Dataset):
         except:
             print("ERROR IN LOADING THE IMAGE {}".format(img_path))
             im = Image.new("RGB", (1024, 1024), (255, 255, 255))
-            
+
         if self.transform:
             im = self.transform(im)
         
