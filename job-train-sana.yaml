@@ -94,13 +94,13 @@ spec:
               cp -r /workspace/Sana/* /pvc/Sana
               cd /pvc/Sana
               ls /pvc/
+              pwd
 
               # Clean up apt cache
               rm -rf /var/lib/apt/lists/*
               
-              python -m pip install --upgrade pip setuptools wheel
+              # python -m pip install --upgrade pip setuptools wheel
 
-              
               echo "Setting up environment..."
               export PYTHONPATH=$PYTHONPATH:/pvc/Sana/
               echo "Python Path"
@@ -114,18 +114,13 @@ spec:
               pip install pyrallis
 
               echo "Running training script..."
-              torchrun --nproc_per_node=1 --master_port=15432 \ 
-                        train_scripts/train.py \
-                      --config_path=configs/sana_config/512ms/Sana_1600M_img512.yaml \
-                      --data.data_dir="[/pvc/MIMIC_ARRANGED/Train]" \
-                      --data.type=SanaImgDataset \
-                      --model.load_from=hf://Efficient-Large-Model/Sana_1600M_512px/checkpoints/Sana_1600M_512px.pth \
-                      --model.multi_scale=false \
-                      --train.train_batch_size=256
+              chmod +x train_scripts/train.sh
+              bash train_scripts/train.sh
+
           resources:
             limits:
               nvidia.com/gpu: "1"
-              cpu: "4"
+              cpu: "8"
               memory: "96Gi"
           volumeMounts:
             - name: workspace
@@ -142,7 +137,7 @@ spec:
         - name: dshm
           emptyDir:
             medium: Memory
-            sizeLimit: 16Gi
+            sizeLimit: 64Gi
         - name: writeable
           persistentVolumeClaim:
             claimName: mimic-cxr2
