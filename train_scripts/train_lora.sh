@@ -2,7 +2,7 @@
 
 export MODEL_NAME="Efficient-Large-Model/Sana_1600M_1024px_BF16_diffusers"
 export OUTPUT_DIR="trained-sana-lora"
-export BATCH_SIZE=4
+export BATCH_SIZE=1
 export LR=1e-4
 export MAX_TRAIN_STEPS=9000
 
