@@ -20,6 +20,7 @@ import math
 import os
 import random
 import shutil
+import pandas as pd
 import warnings
 from pathlib import Path
 
@@ -54,11 +55,12 @@ from torchvision.transforms.functional import crop
 from tqdm.auto import tqdm
 from transformers import AutoTokenizer, Gemma2Model
 
+from t2i_data import MimicCXRDataset
+
 if is_wandb_available():
     import wandb
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
-check_min_version("0.32.0.dev0")
 
 logger = get_logger(__name__)
 
@@ -142,9 +144,12 @@ def log_validation(
     epoch,
     is_final_validation=False,
 ):
+    # logger.info(
+    #     f"Running validation... \n Generating {args.num_validation_images} images with prompt:"
+    #     f" {args.validation_prompt}."
+    # )
     logger.info(
-        f"Running validation... \n Generating {args.num_validation_images} images with prompt:"
-        f" {args.validation_prompt}."
+        f"Running validation... \n Generating {args.num_validation_images} images."
     )
     pipeline.text_encoder = pipeline.text_encoder.to(torch.bfloat16)
     pipeline = pipeline.to(accelerator.device)
@@ -153,7 +158,16 @@ def log_validation(
     # run inference
     generator = torch.Generator(device=accelerator.device).manual_seed(args.seed) if args.seed else None
 
-    images = [pipeline(**pipeline_args, generator=generator).images[0] for _ in range(args.num_validation_images)]
+    # images = [pipeline(**pipeline_args, generator=generator).images[0] for _ in range(args.num_validation_images)]
+    ##### Providing multiple prompts for validation
+    images = []
+    for i in range(len(args.validation_prompts)):
+        prompt = args.validation_prompts[i]
+        pipeline_args["prompt"] = prompt
+        logger.info(f"Generating image with prompt: {prompt}")
+        image = pipeline(**pipeline_args, generator=generator).images[0]
+        images.append(image)
+        
 
     for tracker in accelerator.trackers:
         phase_name = "test" if is_final_validation else "validation"
@@ -252,13 +266,13 @@ def parse_args(input_args=None):
         required=False,
         help="A folder containing the training data of class images.",
     )
-    parser.add_argument(
-        "--instance_prompt",
-        type=str,
-        default=None,
-        required=True,
-        help="The prompt with identifier specifying the instance, e.g. 'photo of a TOK dog', 'in the style of TOK'",
-    )
+    # parser.add_argument(
+    #     "--instance_prompt",
+    #     type=str,
+    #     default=None,
+    #     required=True,
+    #     help="The prompt with identifier specifying the instance, e.g. 'photo of a TOK dog', 'in the style of TOK'",
+    # )
     parser.add_argument(
         "--class_prompt",
         type=str,
@@ -584,16 +598,49 @@ def parse_args(input_args=None):
     )
     parser.add_argument("--local_rank", type=int, default=-1, help="For distributed training: local_rank")
 
+    #### NEW ARGS
+    parser.add_argument(
+        "--train_data_dir",
+        type=str,
+        default=None,
+        help=(
+            "A folder containing the training data. Folder contents must follow the structure described in"
+            " https://huggingface.co/docs/datasets/image_dataset#imagefolder. In particular, a `metadata.jsonl` file"
+            " must exist to provide the captions for the images. Ignored if `dataset_name` is specified."
+        ),
+    )
+    parser.add_argument(
+        "--image_column", type=str, default="path", help="The column of the dataset containing an image."
+    )
+    parser.add_argument(
+        "--caption_column",
+        type=str,
+        default="Text",
+        help="The column of the dataset containing a caption or a list of captions.",
+    )
+    parser.add_argument(
+        "--train_csv",
+        type=str,
+        default=None,
+        help="Path to the CSV file containing 'Text' and 'path' columns."
+    )
+    parser.add_argument(
+        "--test_csv",
+        type=str,
+        default=None,
+        help="Path to the CSV file containing 'Text' and 'path' columns."
+    )
+
     if input_args is not None:
         args = parser.parse_args(input_args)
     else:
         args = parser.parse_args()
 
-    if args.dataset_name is None and args.instance_data_dir is None:
-        raise ValueError("Specify either `--dataset_name` or `--instance_data_dir`")
+    # if args.dataset_name is None and args.instance_data_dir is None:
+    #     raise ValueError("Specify either `--dataset_name` or `--instance_data_dir`")
 
-    if args.dataset_name is not None and args.instance_data_dir is not None:
-        raise ValueError("Specify only one of `--dataset_name` or `--instance_data_dir`")
+    # if args.dataset_name is not None and args.instance_data_dir is not None:
+    #     raise ValueError("Specify only one of `--dataset_name` or `--instance_data_dir`")
 
     env_local_rank = int(os.environ.get("LOCAL_RANK", -1))
     if env_local_rank != -1 and env_local_rank != args.local_rank:
@@ -614,207 +661,207 @@ def parse_args(input_args=None):
     return args
 
 
-class DreamBoothDataset(Dataset):
-    """
-    A dataset to prepare the instance and class images with the prompts for fine-tuning the model.
-    It pre-processes the images.
-    """
+# class DreamBoothDataset(Dataset):
+#     """
+#     A dataset to prepare the instance and class images with the prompts for fine-tuning the model.
+#     It pre-processes the images.
+#     """
 
-    def __init__(
-        self,
-        instance_data_root,
-        instance_prompt,
-        class_prompt,
-        class_data_root=None,
-        class_num=None,
-        size=1024,
-        repeats=1,
-        center_crop=False,
-    ):
-        self.size = size
-        self.center_crop = center_crop
+#     def __init__(
+#         self,
+#         instance_data_root,
+#         instance_prompt,
+#         class_prompt,
+#         class_data_root=None,
+#         class_num=None,
+#         size=1024,
+#         repeats=1,
+#         center_crop=False,
+#     ):
+#         self.size = size
+#         self.center_crop = center_crop
 
-        self.instance_prompt = instance_prompt
-        self.custom_instance_prompts = None
-        self.class_prompt = class_prompt
+#         self.instance_prompt = instance_prompt
+#         self.custom_instance_prompts = None
+#         self.class_prompt = class_prompt
 
-        # if --dataset_name is provided or a metadata jsonl file is provided in the local --instance_data directory,
-        # we load the training data using load_dataset
-        if args.dataset_name is not None:
-            try:
-                from datasets import load_dataset
-            except ImportError:
-                raise ImportError(
-                    "You are trying to load your data using the datasets library. If you wish to train using custom "
-                    "captions please install the datasets library: `pip install datasets`. If you wish to load a "
-                    "local folder containing images only, specify --instance_data_dir instead."
-                )
-            # Downloading and loading a dataset from the hub.
-            # See more about loading custom images at
-            # https://huggingface.co/docs/datasets/v2.0.0/en/dataset_script
-            dataset = load_dataset(
-                args.dataset_name,
-                args.dataset_config_name,
-                cache_dir=args.cache_dir,
-            )
-            # Preprocessing the datasets.
-            column_names = dataset["train"].column_names
+#         # if --dataset_name is provided or a metadata jsonl file is provided in the local --instance_data directory,
+#         # we load the training data using load_dataset
+#         if args.dataset_name is not None:
+#             try:
+#                 from datasets import load_dataset
+#             except ImportError:
+#                 raise ImportError(
+#                     "You are trying to load your data using the datasets library. If you wish to train using custom "
+#                     "captions please install the datasets library: `pip install datasets`. If you wish to load a "
+#                     "local folder containing images only, specify --instance_data_dir instead."
+#                 )
+#             # Downloading and loading a dataset from the hub.
+#             # See more about loading custom images at
+#             # https://huggingface.co/docs/datasets/v2.0.0/en/dataset_script
+#             dataset = load_dataset(
+#                 args.dataset_name,
+#                 args.dataset_config_name,
+#                 cache_dir=args.cache_dir,
+#             )
+#             # Preprocessing the datasets.
+#             column_names = dataset["train"].column_names
 
-            # 6. Get the column names for input/target.
-            if args.image_column is None:
-                image_column = column_names[0]
-                logger.info(f"image column defaulting to {image_column}")
-            else:
-                image_column = args.image_column
-                if image_column not in column_names:
-                    raise ValueError(
-                        f"`--image_column` value '{args.image_column}' not found in dataset columns. Dataset columns are: {', '.join(column_names)}"
-                    )
-            instance_images = dataset["train"][image_column]
+#             # 6. Get the column names for input/target.
+#             if args.image_column is None:
+#                 image_column = column_names[0]
+#                 logger.info(f"image column defaulting to {image_column}")
+#             else:
+#                 image_column = args.image_column
+#                 if image_column not in column_names:
+#                     raise ValueError(
+#                         f"`--image_column` value '{args.image_column}' not found in dataset columns. Dataset columns are: {', '.join(column_names)}"
+#                     )
+#             instance_images = dataset["train"][image_column]
 
-            if args.caption_column is None:
-                logger.info(
-                    "No caption column provided, defaulting to instance_prompt for all images. If your dataset "
-                    "contains captions/prompts for the images, make sure to specify the "
-                    "column as --caption_column"
-                )
-                self.custom_instance_prompts = None
-            else:
-                if args.caption_column not in column_names:
-                    raise ValueError(
-                        f"`--caption_column` value '{args.caption_column}' not found in dataset columns. Dataset columns are: {', '.join(column_names)}"
-                    )
-                custom_instance_prompts = dataset["train"][args.caption_column]
-                # create final list of captions according to --repeats
-                self.custom_instance_prompts = []
-                for caption in custom_instance_prompts:
-                    self.custom_instance_prompts.extend(itertools.repeat(caption, repeats))
-        else:
-            self.instance_data_root = Path(instance_data_root)
-            if not self.instance_data_root.exists():
-                raise ValueError("Instance images root doesn't exists.")
+#             if args.caption_column is None:
+#                 logger.info(
+#                     "No caption column provided, defaulting to instance_prompt for all images. If your dataset "
+#                     "contains captions/prompts for the images, make sure to specify the "
+#                     "column as --caption_column"
+#                 )
+#                 self.custom_instance_prompts = None
+#             else:
+#                 if args.caption_column not in column_names:
+#                     raise ValueError(
+#                         f"`--caption_column` value '{args.caption_column}' not found in dataset columns. Dataset columns are: {', '.join(column_names)}"
+#                     )
+#                 custom_instance_prompts = dataset["train"][args.caption_column]
+#                 # create final list of captions according to --repeats
+#                 self.custom_instance_prompts = []
+#                 for caption in custom_instance_prompts:
+#                     self.custom_instance_prompts.extend(itertools.repeat(caption, repeats))
+#         else:
+#             self.instance_data_root = Path(instance_data_root)
+#             if not self.instance_data_root.exists():
+#                 raise ValueError("Instance images root doesn't exists.")
 
-            instance_images = [Image.open(path) for path in list(Path(instance_data_root).iterdir())]
-            self.custom_instance_prompts = None
+#             instance_images = [Image.open(path) for path in list(Path(instance_data_root).iterdir())]
+#             self.custom_instance_prompts = None
 
-        self.instance_images = []
-        for img in instance_images:
-            self.instance_images.extend(itertools.repeat(img, repeats))
+#         self.instance_images = []
+#         for img in instance_images:
+#             self.instance_images.extend(itertools.repeat(img, repeats))
 
-        self.pixel_values = []
-        train_resize = transforms.Resize(size, interpolation=transforms.InterpolationMode.BILINEAR)
-        train_crop = transforms.CenterCrop(size) if center_crop else transforms.RandomCrop(size)
-        train_flip = transforms.RandomHorizontalFlip(p=1.0)
-        train_transforms = transforms.Compose(
-            [
-                transforms.ToTensor(),
-                transforms.Normalize([0.5], [0.5]),
-            ]
-        )
-        for image in self.instance_images:
-            image = exif_transpose(image)
-            if not image.mode == "RGB":
-                image = image.convert("RGB")
-            image = train_resize(image)
-            if args.random_flip and random.random() < 0.5:
-                # flip
-                image = train_flip(image)
-            if args.center_crop:
-                y1 = max(0, int(round((image.height - args.resolution) / 2.0)))
-                x1 = max(0, int(round((image.width - args.resolution) / 2.0)))
-                image = train_crop(image)
-            else:
-                y1, x1, h, w = train_crop.get_params(image, (args.resolution, args.resolution))
-                image = crop(image, y1, x1, h, w)
-            image = train_transforms(image)
-            self.pixel_values.append(image)
+#         self.pixel_values = []
+#         train_resize = transforms.Resize(size, interpolation=transforms.InterpolationMode.BILINEAR)
+#         train_crop = transforms.CenterCrop(size) if center_crop else transforms.RandomCrop(size)
+#         train_flip = transforms.RandomHorizontalFlip(p=1.0)
+#         train_transforms = transforms.Compose(
+#             [
+#                 transforms.ToTensor(),
+#                 transforms.Normalize([0.5], [0.5]),
+#             ]
+#         )
+#         for image in self.instance_images:
+#             image = exif_transpose(image)
+#             if not image.mode == "RGB":
+#                 image = image.convert("RGB")
+#             image = train_resize(image)
+#             if args.random_flip and random.random() < 0.5:
+#                 # flip
+#                 image = train_flip(image)
+#             if args.center_crop:
+#                 y1 = max(0, int(round((image.height - args.resolution) / 2.0)))
+#                 x1 = max(0, int(round((image.width - args.resolution) / 2.0)))
+#                 image = train_crop(image)
+#             else:
+#                 y1, x1, h, w = train_crop.get_params(image, (args.resolution, args.resolution))
+#                 image = crop(image, y1, x1, h, w)
+#             image = train_transforms(image)
+#             self.pixel_values.append(image)
 
-        self.num_instance_images = len(self.instance_images)
-        self._length = self.num_instance_images
+#         self.num_instance_images = len(self.instance_images)
+#         self._length = self.num_instance_images
 
-        if class_data_root is not None:
-            self.class_data_root = Path(class_data_root)
-            self.class_data_root.mkdir(parents=True, exist_ok=True)
-            self.class_images_path = list(self.class_data_root.iterdir())
-            if class_num is not None:
-                self.num_class_images = min(len(self.class_images_path), class_num)
-            else:
-                self.num_class_images = len(self.class_images_path)
-            self._length = max(self.num_class_images, self.num_instance_images)
-        else:
-            self.class_data_root = None
+#         if class_data_root is not None:
+#             self.class_data_root = Path(class_data_root)
+#             self.class_data_root.mkdir(parents=True, exist_ok=True)
+#             self.class_images_path = list(self.class_data_root.iterdir())
+#             if class_num is not None:
+#                 self.num_class_images = min(len(self.class_images_path), class_num)
+#             else:
+#                 self.num_class_images = len(self.class_images_path)
+#             self._length = max(self.num_class_images, self.num_instance_images)
+#         else:
+#             self.class_data_root = None
 
-        self.image_transforms = transforms.Compose(
-            [
-                transforms.Resize(size, interpolation=transforms.InterpolationMode.BILINEAR),
-                transforms.CenterCrop(size) if center_crop else transforms.RandomCrop(size),
-                transforms.ToTensor(),
-                transforms.Normalize([0.5], [0.5]),
-            ]
-        )
+#         self.image_transforms = transforms.Compose(
+#             [
+#                 transforms.Resize(size, interpolation=transforms.InterpolationMode.BILINEAR),
+#                 transforms.CenterCrop(size) if center_crop else transforms.RandomCrop(size),
+#                 transforms.ToTensor(),
+#                 transforms.Normalize([0.5], [0.5]),
+#             ]
+#         )
 
-    def __len__(self):
-        return self._length
+#     def __len__(self):
+#         return self._length
 
-    def __getitem__(self, index):
-        example = {}
-        instance_image = self.pixel_values[index % self.num_instance_images]
-        example["instance_images"] = instance_image
+#     def __getitem__(self, index):
+#         example = {}
+#         instance_image = self.pixel_values[index % self.num_instance_images]
+#         example["instance_images"] = instance_image
 
-        if self.custom_instance_prompts:
-            caption = self.custom_instance_prompts[index % self.num_instance_images]
-            if caption:
-                example["instance_prompt"] = caption
-            else:
-                example["instance_prompt"] = self.instance_prompt
+#         if self.custom_instance_prompts:
+#             caption = self.custom_instance_prompts[index % self.num_instance_images]
+#             if caption:
+#                 example["instance_prompt"] = caption
+#             else:
+#                 example["instance_prompt"] = self.instance_prompt
 
-        else:  # custom prompts were provided, but length does not match size of image dataset
-            example["instance_prompt"] = self.instance_prompt
+#         else:  # custom prompts were provided, but length does not match size of image dataset
+#             example["instance_prompt"] = self.instance_prompt
 
-        if self.class_data_root:
-            class_image = Image.open(self.class_images_path[index % self.num_class_images])
-            class_image = exif_transpose(class_image)
+#         if self.class_data_root:
+#             class_image = Image.open(self.class_images_path[index % self.num_class_images])
+#             class_image = exif_transpose(class_image)
 
-            if not class_image.mode == "RGB":
-                class_image = class_image.convert("RGB")
-            example["class_images"] = self.image_transforms(class_image)
-            example["class_prompt"] = self.class_prompt
+#             if not class_image.mode == "RGB":
+#                 class_image = class_image.convert("RGB")
+#             example["class_images"] = self.image_transforms(class_image)
+#             example["class_prompt"] = self.class_prompt
 
-        return example
-
-
-def collate_fn(examples, with_prior_preservation=False):
-    pixel_values = [example["instance_images"] for example in examples]
-    prompts = [example["instance_prompt"] for example in examples]
-
-    # Concat class and instance examples for prior preservation.
-    # We do this to avoid doing two forward passes.
-    if with_prior_preservation:
-        pixel_values += [example["class_images"] for example in examples]
-        prompts += [example["class_prompt"] for example in examples]
-
-    pixel_values = torch.stack(pixel_values)
-    pixel_values = pixel_values.to(memory_format=torch.contiguous_format).float()
-
-    batch = {"pixel_values": pixel_values, "prompts": prompts}
-    return batch
+#         return example
 
 
-class PromptDataset(Dataset):
-    "A simple dataset to prepare the prompts to generate class images on multiple GPUs."
+# def collate_fn(examples, with_prior_preservation=False):
+#     pixel_values = [example["instance_images"] for example in examples]
+#     prompts = [example["instance_prompt"] for example in examples]
 
-    def __init__(self, prompt, num_samples):
-        self.prompt = prompt
-        self.num_samples = num_samples
+#     # Concat class and instance examples for prior preservation.
+#     # We do this to avoid doing two forward passes.
+#     if with_prior_preservation:
+#         pixel_values += [example["class_images"] for example in examples]
+#         prompts += [example["class_prompt"] for example in examples]
 
-    def __len__(self):
-        return self.num_samples
+#     pixel_values = torch.stack(pixel_values)
+#     pixel_values = pixel_values.to(memory_format=torch.contiguous_format).float()
 
-    def __getitem__(self, index):
-        example = {}
-        example["prompt"] = self.prompt
-        example["index"] = index
-        return example
+#     batch = {"pixel_values": pixel_values, "prompts": prompts}
+#     return batch
+
+
+# class PromptDataset(Dataset):
+#     "A simple dataset to prepare the prompts to generate class images on multiple GPUs."
+
+#     def __init__(self, prompt, num_samples):
+#         self.prompt = prompt
+#         self.num_samples = num_samples
+
+#     def __len__(self):
+#         return self.num_samples
+
+#     def __getitem__(self, index):
+#         example = {}
+#         example["prompt"] = self.prompt
+#         example["index"] = index
+#         return example
 
 
 def main(args):
@@ -889,25 +936,106 @@ def main(args):
             num_new_images = args.num_class_images - cur_class_images
             logger.info(f"Number of class images to sample: {num_new_images}.")
 
-            sample_dataset = PromptDataset(args.class_prompt, num_new_images)
-            sample_dataloader = torch.utils.data.DataLoader(sample_dataset, batch_size=args.sample_batch_size)
+            # sample_dataset = PromptDataset(args.class_prompt, num_new_images)
+            # sample_dataloader = torch.utils.data.DataLoader(sample_dataset, batch_size=args.sample_batch_size)
+            # sample_dataloader = accelerator.prepare(sample_dataloader)
 
-            sample_dataloader = accelerator.prepare(sample_dataloader)
+            ############## MIMIC CXR DATASET ################
+            assert args.train_csv is not None
+            assert args.test_csv is not None
+
+            train_transforms = transforms.Compose(
+                [
+                    transforms.Resize(args.resolution, interpolation=transforms.InterpolationMode.BILINEAR),
+                    transforms.CenterCrop(args.resolution) if args.center_crop else transforms.RandomCrop(args.resolution),
+                    transforms.RandomHorizontalFlip() if args.random_flip else transforms.Lambda(lambda x: x),
+                    transforms.ToTensor(),
+                    transforms.Normalize([0.5], [0.5]),
+                ]
+            )
+
+            test_transforms = transforms.Compose(
+                [
+                    transforms.Resize(args.resolution, interpolation=transforms.InterpolationMode.BILINEAR),
+                    transforms.CenterCrop(args.resolution) if args.center_crop else transforms.RandomCrop(args.resolution),
+                    transforms.RandomHorizontalFlip() if args.random_flip else transforms.Lambda(lambda x: x),
+                    transforms.ToTensor(),
+                ]
+            )
+
+            IMG_DIR = args.train_data_dir
+            try:
+                train_df = pd.read_excel(args.train_csv)
+            except:
+                train_df = pd.read_csv(args.train_csv)
+            train_df['path'] = train_df['path'].apply(lambda x: os.path.join(IMG_DIR, x))
+
+            if(args.max_train_samples is not None):
+                print("Sampling {} samples from the training dataset".format(args.max_train_samples))
+                train_df = train_df.sample(n=args.max_train_samples, random_state=args.seed).reset_index(drop=True)
+
+            train_dataset = MimicCXRDataset(
+                train_df,
+                tokenizer=tokenizer,
+                transform=train_transforms,
+                seed=args.seed,
+                img_path_key=args.image_column,
+                caption_col_key=args.caption_column,
+            )
+            try:
+                test_df = pd.read_excel(args.test_csv)
+            except:
+                test_df = pd.read_csv(args.test_csv)
+
+            test_df['path'] = test_df['path'].apply(lambda x: os.path.join(IMG_DIR, x))
+            test_df = test_df.dropna(subset=[args.caption_column]).reset_index(drop=True)
+
+            test_dataset = MimicCXRDataset(
+                test_df,
+                tokenizer=tokenizer,
+                transform=test_transforms,
+                seed=args.seed,
+                img_path_key=args.image_column,
+                caption_col_key=args.caption_column,
+            )
+
+            args.validation_prompts = test_df[args.caption_column].tolist()[0:20]
+
+            ################ DATALOADER ################
+            # DataLoader creation
+            train_dataloader = torch.utils.data.DataLoader(
+                train_dataset,
+                shuffle=True,
+                # collate_fn=collate_fn,
+                batch_size=args.train_batch_size,
+                num_workers=args.dataloader_num_workers,
+            )
+            test_dataloader = torch.utils.data.DataLoader(
+                test_dataset,
+                shuffle=False,
+                # collate_fn=collate_fn,
+                batch_size=args.eval_batch_size,
+                num_workers=args.dataloader_num_workers,
+            )
+
+            # Prepare everything with our `accelerator`.
+            train_dataloader = accelerator.prepare(train_dataloader)
+            test_dataloader = accelerator.prepare(test_dataloader)
             pipeline.to(accelerator.device)
 
-            for example in tqdm(
-                sample_dataloader, desc="Generating class images", disable=not accelerator.is_local_main_process
-            ):
-                images = pipeline(example["prompt"]).images
+            # for example in tqdm(
+            #     sample_dataloader, desc="Generating class images", disable=not accelerator.is_local_main_process
+            # ):
+            #     images = pipeline(example["prompt"]).images
 
-                for i, image in enumerate(images):
-                    hash_image = insecure_hashlib.sha1(image.tobytes()).hexdigest()
-                    image_filename = class_images_dir / f"{example['index'][i] + cur_class_images}-{hash_image}.jpg"
-                    image.save(image_filename)
+            #     for i, image in enumerate(images):
+            #         hash_image = insecure_hashlib.sha1(image.tobytes()).hexdigest()
+            #         image_filename = class_images_dir / f"{example['index'][i] + cur_class_images}-{hash_image}.jpg"
+            #         image.save(image_filename)
 
-            del pipeline
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
+            # del pipeline
+            # if torch.cuda.is_available():
+            #     torch.cuda.empty_cache()
 
     # Handle the repository creation
     if accelerator.is_main_process:
@@ -986,6 +1114,7 @@ def main(args):
     if args.lora_layers is not None:
         target_modules = [layer.strip() for layer in args.lora_layers.split(",")]
     else:
+        # TODO: Can add more target modules
         target_modules = ["to_k", "to_q", "to_v"]
 
     # now we will add new LoRA weights the transformer layers
@@ -1140,24 +1269,24 @@ def main(args):
         )
 
     # Dataset and DataLoaders creation:
-    train_dataset = DreamBoothDataset(
-        instance_data_root=args.instance_data_dir,
-        instance_prompt=args.instance_prompt,
-        class_prompt=args.class_prompt,
-        class_data_root=args.class_data_dir if args.with_prior_preservation else None,
-        class_num=args.num_class_images,
-        size=args.resolution,
-        repeats=args.repeats,
-        center_crop=args.center_crop,
-    )
+    # train_dataset = DreamBoothDataset(
+    #     instance_data_root=args.instance_data_dir,
+    #     instance_prompt=args.instance_prompt,
+    #     class_prompt=args.class_prompt,
+    #     class_data_root=args.class_data_dir if args.with_prior_preservation else None,
+    #     class_num=args.num_class_images,
+    #     size=args.resolution,
+    #     repeats=args.repeats,
+    #     center_crop=args.center_crop,
+    # )
 
-    train_dataloader = torch.utils.data.DataLoader(
-        train_dataset,
-        batch_size=args.train_batch_size,
-        shuffle=True,
-        collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
-        num_workers=args.dataloader_num_workers,
-    )
+    # train_dataloader = torch.utils.data.DataLoader(
+    #     train_dataset,
+    #     batch_size=args.train_batch_size,
+    #     shuffle=True,
+    #     collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
+    #     num_workers=args.dataloader_num_workers,
+    # )
 
     def compute_text_embeddings(prompt, text_encoding_pipeline):
         text_encoding_pipeline = text_encoding_pipeline.to(accelerator.device)
@@ -1209,9 +1338,9 @@ def main(args):
                 batch["pixel_values"] = batch["pixel_values"].to(accelerator.device, non_blocking=True, dtype=vae.dtype)
                 latents_cache.append(vae.encode(batch["pixel_values"]).latent)
 
-        if args.validation_prompt is None:
-            del vae
-            free_memory()
+        # if args.validation_prompt is None:
+        #     del vae
+        #     free_memory()
 
     # Scheduler and math around the number of training steps.
     overrode_max_train_steps = False
@@ -1442,7 +1571,7 @@ def main(args):
                 break
 
         if accelerator.is_main_process:
-            if args.validation_prompt is not None and epoch % args.validation_epochs == 0:
+            if args.validation_prompts is not None and epoch % args.validation_epochs == 0:
                 # create pipeline
                 pipeline = SanaPipeline.from_pretrained(
                     args.pretrained_model_name_or_path,
@@ -1452,7 +1581,7 @@ def main(args):
                     torch_dtype=torch.float32,
                 )
                 pipeline_args = {
-                    "prompt": args.validation_prompt,
+                    "prompt": args.validation_prompts,
                     "complex_human_instruction": args.complex_human_instruction,
                 }
                 images = log_validation(
@@ -1496,9 +1625,9 @@ def main(args):
 
         # run inference
         images = []
-        if args.validation_prompt and args.num_validation_images > 0:
+        if args.validation_prompts and args.num_validation_images > 0:
             pipeline_args = {
-                "prompt": args.validation_prompt,
+                "prompt": args.validation_prompts,
                 "complex_human_instruction": args.complex_human_instruction,
             }
             images = log_validation(
@@ -1515,8 +1644,8 @@ def main(args):
                 repo_id,
                 images=images,
                 base_model=args.pretrained_model_name_or_path,
-                instance_prompt=args.instance_prompt,
-                validation_prompt=args.validation_prompt,
+                # instance_prompt=args.instance_prompt,
+                # validation_prompt=args.validation_prompt,
                 repo_folder=args.output_dir,
             )
             upload_folder(
