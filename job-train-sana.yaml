@@ -121,8 +121,15 @@ spec:
 
               echo "Running training script..."
               chmod +x train_scripts/train.sh
-              bash train_scripts/train.sh
+              # bash train_scripts/train.sh
 
+              bash train_scripts/train.sh configs/sana_config/1024ms/Sana_1600M_img1024.yaml \
+                --data.data_dir="[/pvc/MIMIC_ARRANGED/Train]" \
+                --data.type=SanaImgDataset \
+                --model.multi_scale=false \
+                --train.train_batch_size=16 \
+                --model.load_from="hf://Efficient-Large-Model/Sana_1600M_512px/checkpoints/Sana_1600M_512px.pth" \
+                
           resources:
             limits:
               nvidia.com/gpu: "1"
