@@ -69,6 +69,8 @@ class MimicCXRDataset(torch.utils.data.Dataset):
             im = Image.open(img_path).convert("RGB")
         except:
             print("ERROR IN LOADING THE IMAGE {}".format(img_path))
+            im = Image.new("RGB", (1024, 1024), (255, 255, 255))
+            
         if self.transform:
             im = self.transform(im)
         

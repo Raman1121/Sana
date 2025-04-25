@@ -1304,19 +1304,19 @@ def main(args):
         )
 
     # Clear the memory here
-    if not train_dataset.custom_instance_prompts:
-        del text_encoder, tokenizer
-        free_memory()
+    # if not train_dataset.custom_instance_prompts:
+    #     del text_encoder, tokenizer
+    #     free_memory()
 
     # If custom instance prompts are NOT provided (i.e. the instance prompt is used for all images),
     # pack the statically computed variables appropriately here. This is so that we don't
     # have to pass them to the dataloader.
-    if not train_dataset.custom_instance_prompts:
-        prompt_embeds = instance_prompt_hidden_states
-        prompt_attention_mask = instance_prompt_attention_mask
-        if args.with_prior_preservation:
-            prompt_embeds = torch.cat([prompt_embeds, class_prompt_hidden_states], dim=0)
-            prompt_attention_mask = torch.cat([prompt_attention_mask, class_prompt_attention_mask], dim=0)
+    # if not train_dataset.custom_instance_prompts:
+    #     prompt_embeds = instance_prompt_hidden_states
+    #     prompt_attention_mask = instance_prompt_attention_mask
+    #     if args.with_prior_preservation:
+    #         prompt_embeds = torch.cat([prompt_embeds, class_prompt_hidden_states], dim=0)
+    #         prompt_attention_mask = torch.cat([prompt_attention_mask, class_prompt_attention_mask], dim=0)
 
     vae_config_scaling_factor = vae.config.scaling_factor
     if args.cache_latents:
@@ -1435,9 +1435,12 @@ def main(args):
                 prompts = batch["prompts"]
 
                 # encode batch prompts when custom prompts are provided for each image -
-                if train_dataset.custom_instance_prompts:
-                    prompt_embeds, prompt_attention_mask = compute_text_embeddings(prompts, text_encoding_pipeline)
-
+                # if train_dataset.custom_instance_prompts:
+                #     prompt_embeds, prompt_attention_mask = compute_text_embeddings(prompts, text_encoding_pipeline)
+                
+                # Encoding text prompts
+                prompt_embeds, prompt_attention_mask = compute_text_embeddings(prompts, text_encoding_pipeline)
+                
                 # Convert images to latent space
                 if args.cache_latents:
                     model_input = latents_cache[step]
