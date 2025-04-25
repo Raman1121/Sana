@@ -59,7 +59,7 @@ class MimicCXRDataset(torch.utils.data.Dataset):
         #         truncation=True,
         #     )
 
-        batch_size = 1024  # Choose a reasonable batch size (adjust based on memory/performance)
+        batch_size = 64  # Choose a reasonable batch size (adjust based on memory/performance)
         all_tokens = [] # List to store tokenized results from batches
         num_batches = math.ceil(len(self.df) / batch_size) # Calculate number of batches
 
@@ -78,7 +78,7 @@ class MimicCXRDataset(torch.utils.data.Dataset):
             all_tokens.append(batch_encoding)
         print("Tokenization complete.")
 
-        self.tokens = all_tokens
+        self.tokens = torch.cat(all_tokens, dim=0) # Concatenate all batches into a single tensor
         self.uncond_tokens = self.tokenizer(
                 "",
                 padding="max_length",
