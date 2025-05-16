@@ -14,7 +14,7 @@ IMG_DIR="/pvc/MIMIC_Dataset/physionet.org/files/mimic-cxr-jpg/2.0.0"
 IMG_COL="path"
 CAPTION_COL="annotated_prompt"
 
-accelerate launch --num_processes 6 --main_process_port 29500 \
+accelerate launch --num_processes 2 --main_process_port 29500 \
   train_scripts/train_dreambooth_lora_sana.py \
   --pretrained_model_name_or_path=$MODEL_NAME  \
   --output_dir=$OUTPUT_DIR \
