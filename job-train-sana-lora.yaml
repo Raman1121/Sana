@@ -122,7 +122,7 @@ spec:
 
               echo "Running training script..."
               chmod +x train_scripts/train_lora.sh
-              bash train_scripts/train_lora.sh
+              bash train_scripts/train_lora.sh > logs_sana_lora.txt 2>&1
 
           resources:
             limits:
