@@ -121,8 +121,10 @@ spec:
               ./scripts/hf-login.sh
 
               echo "Running training script..."
-              chmod +x train_scripts/train_lora.sh
-              bash train_scripts/train_lora.sh > logs_sana_lora.txt 2>&1
+              # chmod +x train_scripts/train_lora.sh
+              # bash train_scripts/train_lora.sh > logs_sana_lora.txt 2>&1
+              chmod +x train_scripts/train.sh
+              bash train_scripts/train.sh > logs_sana.txt 2>&1
 
           resources:
             limits:
