@@ -4,7 +4,7 @@ set -e
 RESOLUTION=512
 SIZE=1600M
 work_dir=output/Sana_${SIZE}_${RESOLUTION}
-np=2
+np=5
 
 
 if [[ $1 == *.yaml ]]; then
