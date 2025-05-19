@@ -132,7 +132,7 @@ spec:
 
           resources:
             limits:
-              nvidia.com/gpu: "5"
+              nvidia.com/gpu: "4"
               cpu: "8"
               memory: "96Gi"
           volumeMounts:
