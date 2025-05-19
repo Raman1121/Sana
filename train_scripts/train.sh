@@ -1,7 +1,7 @@
 #/bin/bash
 set -e
 
-RESOLUTION=512
+RESOLUTION=1024
 SIZE=1600M
 work_dir=output/Sana_${SIZE}_${RESOLUTION}
 np=5

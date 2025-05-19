@@ -1,5 +1,5 @@
 data:
-  data_dir: [data/toy_data]
+  data_dir: [/pvc/MIMIC_ARRANGED/Train]
   image_size: 1024
   caption_proportion:
     prompt: 1
@@ -78,8 +78,8 @@ scheduler:
 train:
   num_workers: 10
   seed: 1
-  train_batch_size: 64
-  num_epochs: 100
+  train_batch_size: 32
+  num_epochs: 20
   gradient_accumulation_steps: 1
   grad_checkpointing: true
   gradient_clip: 0.1
@@ -101,8 +101,8 @@ train:
   visualize: true
   eval_sampling_steps: 500
   log_interval: 20
-  save_model_epochs: 5
-  save_model_steps: 500
+  save_model_epochs: 1
+  save_model_steps: 2000
   work_dir: output/debug
   online_metric: false
   eval_metric_step: 2000

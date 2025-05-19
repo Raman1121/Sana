@@ -123,8 +123,12 @@ spec:
               echo "Running training script..."
               # chmod +x train_scripts/train_lora.sh
               # bash train_scripts/train_lora.sh > logs_sana_lora.txt 2>&1
+              
+              # chmod +x train_scripts/train.sh
+              # bash train_scripts/train.sh > logs_sana.txt 2>&1
+
               chmod +x train_scripts/train.sh
-              bash train_scripts/train.sh > logs_sana.txt 2>&1
+              bash train_scripts/train.sh > logs_sana1600M_1024.txt 2>&1
 
           resources:
             limits:
