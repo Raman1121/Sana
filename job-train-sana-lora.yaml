@@ -127,6 +127,8 @@ spec:
               # chmod +x train_scripts/train.sh
               # bash train_scripts/train.sh > logs_sana.txt 2>&1
 
+              sleep infinity
+
               chmod +x train_scripts/train.sh
               bash train_scripts/train.sh > logs_sana600M_1024.txt 2>&1
 
