@@ -114,6 +114,9 @@ spec:
               pip install pandas
               pip install pyrallis
 
+              pip install transformers==4.52.1
+              pip install sentence_transformers
+
               pip install -U "huggingface_hub[cli]"
               echo "Logging in to Hugging Face..."
               chmod 600 /pvc/hf_token.txt
@@ -152,7 +155,7 @@ spec:
         - name: dshm
           emptyDir:
             medium: Memory
-            sizeLimit: 64Gi
+            sizeLimit: 128Gi
         - name: writeable
           persistentVolumeClaim:
             claimName: mimic-cxr2
