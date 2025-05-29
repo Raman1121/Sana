@@ -75,6 +75,9 @@ class SanaImgDataset(torch.utils.data.Dataset):
 
         self.data_dirs = data_dir if isinstance(data_dir, list) else [data_dir]
         # self.meta_datas = [osp.join(data_dir, "meta_data.json") for data_dir in self.data_dirs]
+        self.logger.info(f"{len(self.data_dirs)} data directories found")
+        self.logger.info(f"Data directories found: {self.data_dirs}")
+        
         self.dataset = []
         for data_dir in self.data_dirs:
             meta_data = json.load(open(osp.join(data_dir, "meta_data.json")))
