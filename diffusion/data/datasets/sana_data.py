@@ -81,6 +81,8 @@ class SanaImgDataset(torch.utils.data.Dataset):
         self.dataset = []
         for data_dir in self.data_dirs:
             meta_data = json.load(open(osp.join(data_dir, "meta_data.json")))
+            num_samples = len(meta_data["img_names"])
+            self.logger.info(f"Num Samples: {num_samples} in {data_dir}")
             self.dataset.extend([osp.join(data_dir, i) for i in meta_data["img_names"]])
 
         # self.dataset = self.dataset * 2000
