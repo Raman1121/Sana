@@ -1,10 +1,10 @@
 #/bin/bash
 set -e
 
-RESOLUTION=1024
+RESOLUTION=512
 SIZE=600M
 work_dir=output/Sana_${SIZE}_${RESOLUTION}
-np=4
+np=1
 
 
 if [[ $1 == *.yaml ]]; then
@@ -20,9 +20,8 @@ TRITON_PRINT_AUTOTUNING=1 \
     torchrun --nproc_per_node=$np --master_port=15432 \
         train_scripts/train.py \
         --config_path=$config \
-        --data.data_dir="[/pvc/MIMIC_ARRANGED/Train]" \
         --data.type=SanaImgDataset \
-        --model.load_from="hf://Efficient-Large-Model/Sana_${SIZE}_${RESOLUTION}px/checkpoints/Sana_${SIZE}_${RESOLUTION}px.pth" \
+        --model.load_from="hf://Efficient-Large-Model/Sana_${SIZE}_${RESOLUTION}px/checkpoints/Sana_${SIZE}_${RESOLUTION}px_MultiLing.pth" \
         --model.multi_scale=false \
         --train.train_batch_size=32 \
         --work_dir=$work_dir \
