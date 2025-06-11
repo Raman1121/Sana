@@ -114,7 +114,6 @@ class SanaImgDataset(torch.utils.data.Dataset):
             if os.path.exists(caption_json_path):
                 try:
                     caption_json = lru_json_load(caption_json_path)
-                    self.logger.info(f"Reading external captions from: {caption_json_path}")
                 except:
                     caption_json = {}
                 if self.key in caption_json:
