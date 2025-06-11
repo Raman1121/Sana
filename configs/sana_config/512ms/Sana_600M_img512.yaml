@@ -1,9 +1,9 @@
 data:
-  data_dir: [/pvc/MIMIC_ARRANGED/Train]
+  data_dir: [/pvc/MIMIC_ARRANGED/Train,/pvc/MIMIC_ARRANGED_LATERAL/Train/,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED_LATERAL,/pvc/ReXGradient-160K/ReXGradient-160K/deid_png_uint8]
   image_size: 512
   caption_proportion:
     prompt: 1
-  # external_caption_suffixes: ['', _InternVL2-26B, _VILA1-5-13B]
+  external_caption_suffixes: ['', _medgemma4b_long, _medgemma4b_short]
   # external_clipscore_suffixes:
   #   - _InternVL2-26B_clip_score
   #   - _VILA1-5-13B_clip_score
@@ -17,9 +17,9 @@ data:
   sort_dataset: false
 # model config
 model:
-  model: SanaMS_1600M_P1_D20
+  model: SanaMS_600M_P1_D28
   image_size: 512
-  mixed_precision: bf16 # ['fp16', 'fp32', 'bf16']
+  mixed_precision: fp16 # ['fp16', 'fp32', 'bf16']
   fp32_attention: true
   load_from:
   resume_from:
@@ -78,7 +78,7 @@ train:
   num_workers: 8
   seed: 1
   train_batch_size: 64
-  num_epochs: 100
+  num_epochs: 1
   gradient_accumulation_steps: 1
   grad_checkpointing: true
   gradient_clip: 0.1
