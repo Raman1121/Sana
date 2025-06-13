@@ -202,13 +202,13 @@ def log_validation(accelerator, config, model, logger, step, device, vae=None, i
         if tracker.name == "tensorboard":
             for validation_prompt, image in formatted_images:
                 tracker.writer.add_images(validation_prompt, image[None, ...], step, dataformats="NHWC")
-        # elif tracker.name == "wandb":
-        #     import wandb
+        elif tracker.name == "wandb":
+            import wandb
 
-        #     wandb_images = []
-        #     for validation_prompt, image in formatted_images:
-        #         wandb_images.append(wandb.Image(image, caption=validation_prompt, file_type="jpg"))
-        #     tracker.log({"validation": wandb_images})
+            wandb_images = []
+            for validation_prompt, image in formatted_images:
+                wandb_images.append(wandb.Image(image, caption=validation_prompt, file_type="jpg"))
+            tracker.log({"validation": wandb_images})
         else:
             logger.warn(f"image logging not implemented for {tracker.name}")
 
@@ -678,10 +678,10 @@ def main(cfg: SanaConfig) -> None:
 
     if accelerator.is_main_process:
         pyrallis.dump(config, open(osp.join(config.work_dir, "config.yaml"), "w"), sort_keys=False, indent=4)
-        # if args.report_to == "wandb":
-        #     import wandb
+        if args.report_to == "wandb":
+            import wandb
 
-        #     wandb.init(project=args.tracker_project_name, name=args.name, resume="allow", id=args.name)
+            wandb.init(project=args.tracker_project_name, name=args.name, resume="allow", id=args.name)
 
     logger.info(f"Config: \n{config}")
     logger.info(f"World_size: {get_world_size()}, seed: {config.train.seed}")
