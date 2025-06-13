@@ -24,7 +24,8 @@ import random
 import numpy as np
 import torch
 import torch.distributed as dist
-from PIL import Image
+from PIL import Image, ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 from termcolor import colored
 from torch.utils.data import Dataset
 
