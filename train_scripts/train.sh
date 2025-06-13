@@ -4,7 +4,7 @@ set -e
 RESOLUTION=512
 SIZE=600M
 work_dir=output/PulmoGen_${SIZE}_${RESOLUTION}
-np=1
+np=6
 
 
 if [[ $1 == *.yaml ]]; then
@@ -26,7 +26,7 @@ TRITON_PRINT_AUTOTUNING=1 \
         --train.train_batch_size=128 \
         --work_dir=$work_dir \
         --name=tmp \
-        --report_to=tensorboard \
+        --report_to=wandb \
         --debug=false \
         "$@"
 
