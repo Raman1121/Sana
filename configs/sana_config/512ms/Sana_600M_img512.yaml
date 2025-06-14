@@ -19,10 +19,10 @@ data:
 model:
   model: SanaMS_600M_P1_D28
   image_size: 512
-  mixed_precision: fp16 # ['fp16', 'fp32', 'bf16']
+  mixed_precision: bf16 # ['fp16', 'fp32', 'bf16']
   fp32_attention: true
   load_from:
-  resume_from: /pvc/Sana/output/PulmoGen_600M_512/checkpoints/epoch_1_step_1054.pth
+  resume_from:
   aspect_ratio_type: ASPECT_RATIO_512
   multi_scale: false
   attn_type: linear
@@ -75,10 +75,10 @@ scheduler:
   vis_sampler: flow_dpm-solver
 # training setting
 train:
-  num_workers: 8
+  num_workers: 16
   seed: 1
   train_batch_size: 64
-  num_epochs: 1
+  num_epochs: 10
   gradient_accumulation_steps: 1
   grad_checkpointing: true
   gradient_clip: 0.1

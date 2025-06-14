@@ -1,9 +1,9 @@
 data:
-  data_dir: [/pvc/MIMIC_ARRANGED/Train]
+  data_dir: [/pvc/MIMIC_ARRANGED/Train,/pvc/MIMIC_ARRANGED_LATERAL/Train/,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED_LATERAL,/pvc/ReXGradient-160K/ReXGradient-160K/deid_png_uint8]
   image_size: 512
   caption_proportion:
     prompt: 1
-  # external_caption_suffixes: ['', _InternVL2-26B, _VILA1-5-13B]
+  external_caption_suffixes: ['', _medgemma4b_long, _medgemma4b_short]
   # external_clipscore_suffixes:
   #   - _InternVL2-26B_clip_score
   #   - _VILA1-5-13B_clip_score
@@ -24,7 +24,7 @@ model:
   load_from: null
   resume_from: null
   aspect_ratio_type: ASPECT_RATIO_512
-  multi_scale: true
+  multi_scale: false
   attn_type: linear
   ffn_type: glumbconv
   mlp_acts:
@@ -75,10 +75,10 @@ scheduler:
   vis_sampler: flow_dpm-solver
 # training setting
 train:
-  num_workers: 10
+  num_workers: 16
   seed: 1
   train_batch_size: 64
-  num_epochs: 20
+  num_epochs: 10
   gradient_accumulation_steps: 1
   grad_checkpointing: true
   gradient_clip: 0.1
@@ -99,7 +99,7 @@ train:
   local_save_vis: true # if save log image locally
   visualize: true
   eval_sampling_steps: 500
-  log_interval: 20
+  log_interval: 5
   save_model_epochs: 1
   save_model_steps: 1000
   work_dir: output/debug
