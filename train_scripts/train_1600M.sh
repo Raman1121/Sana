@@ -25,7 +25,7 @@ TRITON_PRINT_AUTOTUNING=1 \
         --model.multi_scale=false \
         --train.train_batch_size=64 \
         --work_dir=$work_dir \
-        --name=tmp \
+        --name=sana1600M_512 \
         --report_to=wandb \
         --debug=false \
         "$@"
