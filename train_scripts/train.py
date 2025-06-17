@@ -728,26 +728,31 @@ def main(cfg: SanaConfig) -> None:
     all_val_prompts = []
 
     # MIMIC-AP Prompts
-    val_csv1 = pd.read_csv("/pvc/MIMIC_Dataset/physionet.org/files/mimic-cxr-jpg/2.0.0/LLavA-Rad-Annotations/ANNOTATED_CSV_FILES/LLAVARAD_ANNOTATIONS_TRAIN_MEDGEMMA.csv")
+    logger.info(f"Loading validation prompts from MIMIC-CXR (AP,PA) dataset")
+    val_csv1 = pd.read_csv("/pvc/Benchmarking-Synthetic-Data/MIMIC_Splits/LLAVARAD_ANNOTATIONS_TRAIN_MEDGEMMA.csv")
     mimic_ap_prompts = val_csv1['medgemma_captions'][:3]
     all_val_prompts.extend(mimic_ap_prompts)
 
     # MIMIC-Lateral Prompts
-    val_csv2 = pd.read_csv("/pvc/MIMIC_Dataset/physionet.org/files/mimic-cxr-jpg/2.0.0/LLavA-Rad-Annotations/ANNOTATED_CSV_FILES/LLAVARAD_ANNOTATIONS_LATERAL_TRAIN_MEDGEMMA.csv")
+    logger.info(f"Loading validation prompts from MIMIC-CXR (Lateral) dataset")
+    val_csv2 = pd.read_csv("/pvc/Benchmarking-Synthetic-Data/MIMIC_Splits/LLAVARAD_ANNOTATIONS_LATERAL_TRAIN_MEDGEMMA.csv")
     mimic_lateral_prompts = val_csv2['medgemma_captions'][:3]
     all_val_prompts.extend(mimic_lateral_prompts)
 
     # Chexpert AP Prompts
+    logger.info(f"Loading validation prompts from Chexpert (AP,PA) dataset")
     val_csv3 = pd.read_csv("/pvc/Chexpert/chexpertchestxrays-u20210408/df_chexpert_plus_medgemma_LONG_SHORT.csv")
     chexpert_ap_prompts = val_csv3['medgemma_captions'][:3]
     all_val_prompts.extend(chexpert_ap_prompts)
 
     # Chexpert Lateral Prompts
+    logger.info(f"Loading validation prompts from Chexpert (Lateral) dataset")
     val_csv4 = pd.read_csv("/pvc/Chexpert/chexpertchestxrays-u20210408/df_chexpert_plus_LATERAL_MEDGEMMA_CAPTIONS.csv")
     chexpert_lateral_prompts = val_csv4['medgemma_captions'][:3]
     all_val_prompts.extend(chexpert_lateral_prompts)
 
     # Rexgradient Dataset
+    logger.info(f"Loading validation prompts from ReXGradient dataset")
     val_csv5 = pd.read_csv("/pvc/ReXGradient-160K/ReXGradient-160K/metadata/train_metadata_medgemma_captions_combined.csv")
     rexgradient_prompts = val_csv5['medgemma_captions'][:3]
     all_val_prompts.extend(rexgradient_prompts)
