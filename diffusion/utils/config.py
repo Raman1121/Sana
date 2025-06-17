@@ -271,7 +271,7 @@ class SanaConfig(BaseConfig):
     load_from: Optional[str] = None
     debug: bool = False
     caching: bool = False
-    report_to: str = "wandb"
+    report_to: str = None
     tracker_project_name: str = "PulmoGen-baseline"
     name: str = "baseline"
     loss_report_name: str = "loss"
