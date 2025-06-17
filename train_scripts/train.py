@@ -681,7 +681,7 @@ def main(cfg: SanaConfig) -> None:
         if args.report_to == "wandb":
             import wandb
 
-            wandb.init(project=args.tracker_project_name, name=args.name, resume="allow", id=args.name)
+            wandb.init(project=args.tracker_project_name, name=args.name, resume="allow", id=args.name, reinit='create_new')
 
     logger.info(f"Config: \n{config}")
     logger.info(f"World_size: {get_world_size()}, seed: {config.train.seed}")
@@ -954,7 +954,7 @@ def main(cfg: SanaConfig) -> None:
         caption_proportion=config.data.caption_proportion,
         sort_dataset=config.data.sort_dataset,
         vae_downsample_rate=config.vae.vae_downsample_rate,
-        shuffle_dataset=config.data.shuffle_dataset,
+        # shuffle_dataset=config.data.shuffle_dataset,
     )
     print("LENGTH OF DATASET: ", len(dataset))
     accelerator.wait_for_everyone()
