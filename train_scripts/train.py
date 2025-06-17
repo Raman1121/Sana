@@ -723,9 +723,37 @@ def main(cfg: SanaConfig) -> None:
     )
 
     # Manually creating validation prompts here
-    val_csv = pd.read_csv("/pvc/MIMIC_Dataset/physionet.org/files/mimic-cxr-jpg/2.0.0/LLavA-Rad-Annotations/ANNOTATED_CSV_FILES/LLAVARAD_ANNOTATIONS_TEST.csv")
-    all_val_prompts = list(val_csv['annotated_prompt'])
-    config.train.validation_prompts = all_val_prompts[:15]
+    # val_csv = pd.read_csv("/pvc/MIMIC_Dataset/physionet.org/files/mimic-cxr-jpg/2.0.0/LLavA-Rad-Annotations/ANNOTATED_CSV_FILES/LLAVARAD_ANNOTATIONS_TEST.csv")
+    # all_val_prompts = list(val_csv['annotated_prompt'])
+    all_val_prompts = []
+
+    # MIMIC-AP Prompts
+    val_csv1 = pd.read_csv("/pvc/MIMIC_Dataset/physionet.org/files/mimic-cxr-jpg/2.0.0/LLavA-Rad-Annotations/ANNOTATED_CSV_FILES/LLAVARAD_ANNOTATIONS_TRAIN_MEDGEMMA.csv")
+    mimic_ap_prompts = val_csv1['medgemma_captions'][:3]
+    all_val_prompts.extend(mimic_ap_prompts)
+
+    # MIMIC-Lateral Prompts
+    val_csv2 = pd.read_csv("/pvc/MIMIC_Dataset/physionet.org/files/mimic-cxr-jpg/2.0.0/LLavA-Rad-Annotations/ANNOTATED_CSV_FILES/LLAVARAD_ANNOTATIONS_LATERAL_TRAIN_MEDGEMMA.csv")
+    mimic_lateral_prompts = val_csv2['medgemma_captions'][:3]
+    all_val_prompts.extend(mimic_lateral_prompts)
+
+    # Chexpert AP Prompts
+    val_csv3 = pd.read_csv("/pvc/Chexpert/chexpertchestxrays-u20210408/df_chexpert_plus_medgemma_LONG_SHORT.csv")
+    chexpert_ap_prompts = val_csv3['medgemma_captions'][:3]
+    all_val_prompts.extend(chexpert_ap_prompts)
+
+    # Chexpert Lateral Prompts
+    val_csv4 = pd.read_csv("/pvc/Chexpert/chexpertchestxrays-u20210408/df_chexpert_plus_LATERAL_MEDGEMMA_CAPTIONS.csv")
+    chexpert_lateral_prompts = val_csv4['medgemma_captions'][:3]
+    all_val_prompts.extend(chexpert_lateral_prompts)
+
+    # Rexgradient Dataset
+    val_csv5 = pd.read_csv("/pvc/ReXGradient-160K/ReXGradient-160K/metadata/train_metadata_medgemma_captions_combined.csv")
+    rexgradient_prompts = val_csv5['medgemma_captions'][:3]
+    all_val_prompts.extend(rexgradient_prompts)
+
+
+    config.train.validation_prompts = all_val_prompts
 
     # 2.preparing embeddings for visualization. We put it here for saving GPU memory
     if config.train.visualize and len(config.train.validation_prompts):
