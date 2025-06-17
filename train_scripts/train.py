@@ -921,6 +921,7 @@ def main(cfg: SanaConfig) -> None:
         caption_proportion=config.data.caption_proportion,
         sort_dataset=config.data.sort_dataset,
         vae_downsample_rate=config.vae.vae_downsample_rate,
+        shuffle_dataset=config.data.shuffle_dataset,
     )
     print("LENGTH OF DATASET: ", len(dataset))
     accelerator.wait_for_everyone()

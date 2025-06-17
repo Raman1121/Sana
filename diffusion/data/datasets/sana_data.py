@@ -74,6 +74,8 @@ class SanaImgDataset(torch.utils.data.Dataset):
         self.default_prompt = "prompt"
         self.img_extension = img_extension
 
+        self.shuffle_dataset = kwargs.get("shuffle_dataset", False)
+
         self.data_dirs = data_dir if isinstance(data_dir, list) else [data_dir]
         # self.meta_datas = [osp.join(data_dir, "meta_data.json") for data_dir in self.data_dirs]
         self.logger.info(f"{len(self.data_dirs)} data directories found")
@@ -85,6 +87,10 @@ class SanaImgDataset(torch.utils.data.Dataset):
             num_samples = len(meta_data["img_names"])
             self.logger.info(f"Num Samples: {num_samples} in {data_dir}")
             self.dataset.extend([osp.join(data_dir, i) for i in meta_data["img_names"]])
+
+        if(self.shuffle_dataset):
+            self.logger.info(colored("Shuffling the dataset", "red", attrs=["bold"]))
+            random.shuffle(self.dataset)
 
         # self.dataset = self.dataset * 2000
         self.dataset = self.dataset * 1

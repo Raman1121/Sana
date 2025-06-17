@@ -15,6 +15,7 @@ data:
   transform: default_train
   type: SanaWebDatasetMS
   sort_dataset: false
+  shuffle_dataset: false
 # model config
 model:
   model: SanaMS_600M_P1_D28
