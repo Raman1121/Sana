@@ -1,5 +1,6 @@
 data:
-  data_dir: [/pvc/MIMIC_ARRANGED/Train,/pvc/MIMIC_ARRANGED_LATERAL/Train/,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED_LATERAL,/pvc/ReXGradient-160K/ReXGradient-160K/deid_png_uint8]
+  # data_dir: [/pvc/MIMIC_ARRANGED/Train,/pvc/MIMIC_ARRANGED_LATERAL/Train/,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED_LATERAL]
+  data_dir: [/pvc/MIMIC_ARRANGED/Train,/pvc/MIMIC_ARRANGED_LATERAL/Train/,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED_LATERAL]
   image_size: 512
   caption_proportion:
     prompt: 1
@@ -15,7 +16,7 @@ data:
   transform: default_train
   type: SanaWebDatasetMS
   sort_dataset: false
-  shuffle_dataset: false
+  
 # model config
 model:
   model: SanaMS_1600M_P1_D20
@@ -97,7 +98,7 @@ train:
   lr_schedule: constant
   lr_schedule_args:
     num_warmup_steps: 2000
-  local_save_vis: true # if save log image locally
+  local_save_vis: false # if save log image locally
   visualize: true
   eval_sampling_steps: 500
   log_interval: 5

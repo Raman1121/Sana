@@ -89,7 +89,7 @@ class SanaImgDataset(torch.utils.data.Dataset):
             self.dataset.extend([osp.join(data_dir, i) for i in meta_data["img_names"]])
 
         # if(self.shuffle_dataset):
-        self.logger.info(colored("Shuffling the dataset", "red", attrs=["bold"]))
+        self.logger.info(colored("Shuffling the dataset", "green", attrs=["bold"]))
         for i in range(5):
             random.shuffle(self.dataset)
 

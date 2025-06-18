@@ -1027,7 +1027,7 @@ def main(cfg: SanaConfig) -> None:
         f"text encoder: {config.text_encoder.text_encoder_name}, captions: {config.data.caption_proportion}, precision: {config.model.mixed_precision}"
     )
 
-    timestamp = time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime())
+    timestamp = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
     if accelerator.is_main_process:
         tracker_config = dict(vars(config))
