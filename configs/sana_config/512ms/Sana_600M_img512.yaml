@@ -1,6 +1,5 @@
 data:
-  # data_dir: [/pvc/MIMIC_ARRANGED/Train,/pvc/MIMIC_ARRANGED_LATERAL/Train/,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED_LATERAL,/pvc/ReXGradient-160K/ReXGradient-160K/deid_png_uint8]
-  data_dir: [/pvc/MIMIC_ARRANGED/Train,/pvc/MIMIC_ARRANGED_LATERAL/Train/,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED_LATERAL]
+  data_dir: [/pvc/MIMIC_ARRANGED/Train,/pvc/MIMIC_ARRANGED_LATERAL/Train/,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED,/pvc/Chexpert/chexpertchestxrays-u20210408/TRAIN_ARRANGED_LATERAL,/pvc/ReXGradient-160K/ReXGradient-160K/deid_png_uint8]
   image_size: 512
   caption_proportion:
     prompt: 1
