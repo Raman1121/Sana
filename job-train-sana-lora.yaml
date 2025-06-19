@@ -134,9 +134,9 @@ spec:
 
           resources:
             limits:
-              nvidia.com/gpu: "1"
-              cpu: "8"
-              memory: "96Gi"
+              nvidia.com/gpu: "6"
+              cpu: "24"
+              memory: "256Gi"
           volumeMounts:
             - name: workspace
               mountPath: /workspace

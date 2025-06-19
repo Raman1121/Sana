@@ -56,6 +56,9 @@ def build_dataset(cfg, resolution=224, **kwargs):
     t = time.time()
     transform = cfg.pop("transform", "default_train")
     transform = get_transform(transform, resolution)
+    logger.info(
+        f"{colored('Using transform: ', 'green', attrs=['bold'])}{transform} with resolution {resolution}"
+    )
     dataset = build_from_cfg(cfg, DATASETS, default_args=dict(transform=transform, resolution=resolution, **kwargs))
     logger.info(
         f"{colored(f'Dataset {dataset_type} constructed: ', 'green', attrs=['bold'])}"

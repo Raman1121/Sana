@@ -38,18 +38,23 @@ def get_transform(type, resolution):
 def default_train(n_px):
     transform = [
         T.Lambda(lambda img: img.convert("RGB")),
-        T.Resize(n_px),  # Image.BICUBIC
-        T.CenterCrop(n_px),
-        # T.RandomHorizontalFlip(),
+        T.RandomResizedCrop(
+            n_px,
+            scale=(0.9, 1.0),
+            ratio=(0.95, 1.05),
+            interpolation=InterpolationMode.BICUBIC
+        ),
+        # T.CenterCrop(n_px),
+        T.RandomHorizontalFlip(p=0.5),
         T.ToTensor(),
-        T.Normalize([0.5], [0.5]),
+        T.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
     ]
     return transform
 
 @register_transform
 def default_train2(n_px):
     print("Using default_train2 transform for X-ray images.")
-    return T.Compose([
+    transform = [
         T.Lambda(lambda img: img.convert("RGB")),
 
         # Use RandomResizedCrop with conservative parameters.
@@ -71,4 +76,6 @@ def default_train2(n_px):
 
         T.ToTensor(),
         T.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
-    ])
+    ]
+
+    return transform
