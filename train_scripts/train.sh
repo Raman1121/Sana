@@ -23,9 +23,10 @@ TRITON_PRINT_AUTOTUNING=1 \
         --data.type=SanaImgDataset \
         --model.load_from="hf://Efficient-Large-Model/Sana_${SIZE}_${RESOLUTION}px/checkpoints/Sana_${SIZE}_${RESOLUTION}px_MultiLing.pth" \
         --model.multi_scale=false \
-        --train.train_batch_size=64 \
+        --train.train_batch_size=96 \
         --work_dir=$work_dir \
-        --name=sana600M_512 \
+        --tracker_project_name="PulmoGen-Training" \
+        --name=PulmoGen_${SIZE}_${RESOLUTION} \
         --report_to=wandb \
         --debug=false \
         "$@"
