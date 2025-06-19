@@ -135,7 +135,7 @@ class SchedulerConfig(BaseConfig):
 
 @dataclass
 class TrainingConfig(BaseConfig):
-    num_workers: int = 4
+    num_workers: int = 16
     seed: int = 42
     train_batch_size: int = 32
     num_epochs: int = 100
