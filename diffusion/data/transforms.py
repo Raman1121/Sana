@@ -38,16 +38,10 @@ def get_transform(type, resolution):
 def default_train(n_px):
     transform = [
         T.Lambda(lambda img: img.convert("RGB")),
-        T.RandomResizedCrop(
-            n_px,
-            scale=(0.9, 1.0),
-            ratio=(0.95, 1.05),
-            interpolation=InterpolationMode.BICUBIC
-        ),
-        # T.CenterCrop(n_px),
-        T.RandomHorizontalFlip(p=0.5),
+        T.Resize(n_px),  # Image.BICUBIC
+        T.CenterCrop(n_px),
         T.ToTensor(),
-        T.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+        T.Normalize([0.5], [0.5]),
     ]
     return transform
 

@@ -27,7 +27,6 @@ TRITON_PRINT_AUTOTUNING=1 \
         --work_dir=$work_dir \
         --tracker_project_name="PulmoGen-Training" \
         --name=PulmoGen_${SIZE}_${RESOLUTION} \
-        --report_to=wandb \
         --debug=false \
         "$@"
 

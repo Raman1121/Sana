@@ -25,7 +25,8 @@ TRITON_PRINT_AUTOTUNING=1 \
         --model.multi_scale=false \
         --train.train_batch_size=64 \
         --work_dir=$work_dir \
-        --name=sana1600M_512 \
+        --tracker_project_name="PulmoGen-Training" \
+        --name=PulmoGen_${SIZE}_${RESOLUTION} \
         --report_to=wandb \
         --debug=false \
         "$@"
