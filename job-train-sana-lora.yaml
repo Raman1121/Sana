@@ -81,7 +81,9 @@ spec:
                   libsm6 \
                   libxext6 \
                   libfontconfig1 \
-                  libxrender1
+                  libxrender1 
+              
+              apt update && apt install -y vim tmux
               
               apt list --installed | grep libgl1
               
