@@ -81,7 +81,7 @@ train:
   num_workers: 20
   seed: 1
   train_batch_size: 64
-  num_epochs: 50
+  num_epochs: 20
   gradient_accumulation_steps: 1
   grad_checkpointing: true
   gradient_clip: 0.1

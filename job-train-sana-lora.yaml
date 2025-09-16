@@ -90,6 +90,7 @@ spec:
               DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git ca-certificates
               echo "Git installed"
               echo "Changing branch to eidf"
+              git config --global --add safe.directory /workspace/Sana
               git checkout eidf
 
               echo "Copying files to /pvc"
