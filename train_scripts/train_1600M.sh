@@ -3,7 +3,7 @@ set -e
 
 RESOLUTION=512
 SIZE=1600M
-work_dir=output/PulmoGen_${SIZE}_${RESOLUTION}
+work_dir=output/Sana_${SIZE}_${RESOLUTION}
 np=6
 
 
