@@ -219,10 +219,11 @@ class Sana(nn.Module):
         self.cfg_embedder = None
         if cfg_embed:
             self.cfg_embedder = TimestepEmbedder(hidden_size)
-        num_patches = self.x_embedder.num_patches
+        # num_patches = self.x_embedder.num_patches
+        self.num_patches = self.x_embedder.num_patches
         self.base_size = input_size // self.patch_size
         # Will use fixed sin-cos embedding:
-        self.register_buffer("pos_embed", torch.zeros(1, num_patches, hidden_size))
+        self.register_buffer("pos_embed", torch.zeros(1, self.num_patches, hidden_size))
 
         approx_gelu = lambda: nn.GELU(approximate="tanh")
         self.t_block = nn.Sequential(nn.SiLU(), nn.Linear(hidden_size, 6 * hidden_size, bias=True))
@@ -359,7 +360,8 @@ class Sana(nn.Module):
                 # Initialize (and freeze) pos_embed by sin-cos embedding:
                 pos_embed = get_2d_sincos_pos_embed(
                     self.pos_embed.shape[-1],
-                    int(self.x_embedder.num_patches**0.5),
+                    # int(self.x_embedder.num_patches**0.5),
+                    int(self.num_patches**0.5),
                     pe_interpolation=self.pe_interpolation,
                     base_size=self.base_size,
                 )
