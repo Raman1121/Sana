@@ -801,7 +801,6 @@ class PatchEmbedMS(nn.Module):
 
     def __init__(
         self,
-        img_size=224,
         patch_size=16,
         in_chans=3,
         embed_dim=768,
@@ -813,15 +812,9 @@ class PatchEmbedMS(nn.Module):
     ):
         super().__init__()
         kernel_size = kernel_size or patch_size
-        img_size = to_2tuple(img_size)
         patch_size = to_2tuple(patch_size)
         self.patch_size = patch_size
         self.flatten = flatten
-
-        print(f"######## USING IMAGE SIZE {img_size} ###########")
-        self.grid_size = (img_size[0] // patch_size[0], img_size[1] // patch_size[1])
-        self.num_patches = self.grid_size[0] * self.grid_size[1]
-
         if not padding and kernel_size % 2 > 0:
             padding = get_same_padding(kernel_size)
         self.proj = nn.Conv2d(
