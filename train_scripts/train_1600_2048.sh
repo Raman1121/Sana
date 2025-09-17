@@ -21,7 +21,7 @@ TRITON_PRINT_AUTOTUNING=1 \
         train_scripts/train.py \
         --config_path=$config \
         --data.type=SanaImgDataset \
-        --model.load_from="hf://Efficient-Large-Model/Sana_${SIZE}_${RESOLUTION}px/checkpoints/Sana_${SIZE}_${RESOLUTION}px.pth" \
+        --model.load_from="hf://Efficient-Large-Model/Sana_1600M_2Kpx_BF16/checkpoints/Sana_1600M_2Kpx_BF16.pth" \
         --model.multi_scale=false \
         --train.train_batch_size=32 \
         --work_dir=$work_dir \
